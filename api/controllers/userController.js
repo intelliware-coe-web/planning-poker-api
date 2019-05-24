@@ -30,7 +30,7 @@ exports.get_user = function(req, res) {
 
 exports.delete_user = function(req, res) {
   User.remove({
-    _id: req.params.taskId
+    _id: req.params.userId
   }, function(err, user) {
     if (err)
       res.send(err);
