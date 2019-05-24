@@ -2,7 +2,7 @@ var expect = require('chai').expect;
  
 var User = require('../models/userModel');
  
-describe('create User', function() {
+describe('User Model', function() {
     it('should be invalid if name is empty', function(done) {
         var user = new User();
  
