@@ -1,3 +1,7 @@
+'use strict';
+const nconf = require('nconf');
+nconf.argv().env().file('keys.json');
+
 var express = require('express'),
   app = express(),
   port = process.env.PORT || 9000,
@@ -8,7 +12,11 @@ var express = require('express'),
   
 // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/PlanningPokerDB'); 
+const host = nconf.get('mongoHost');
+const user = nconf.get('mongoUser');
+const password = nconf.get('mongoPassword');
+const mongoDBUri = `mongodb+srv://${user}:${password}@${host}/test?retryWrites=true`;
+mongoose.connect(mongoDBUri); 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
