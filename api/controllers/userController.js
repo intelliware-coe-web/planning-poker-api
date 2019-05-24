@@ -1,13 +1,13 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-  User = mongoose.model('Users');
+  User = mongoose.model('User');
 
 exports.list_users = function(req, res) {
-  User.find({}, function(err, task) {
+  User.find({}, function(err, users) {
     if (err)
       res.send(err);
-    res.json(User);
+    res.json(users);
   });
 };
 
