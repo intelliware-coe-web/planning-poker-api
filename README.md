@@ -1,5 +1,5 @@
 # PLANNING POKER API
-
+[![Build Status](https://travis-ci.com/intelliware-coe-web/planning-poker-api.svg?branch=master)](https://travis-ci.com/intelliware-coe-web/planning-poker-api)
 
 ## INSTALL
 - `npm install`
