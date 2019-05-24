@@ -8,4 +8,7 @@
 - `npm start`
 
 ## DB ACCESS
-- Create a `keys.json` file
+- Create a `keys.json` file with following keys:
+  - mongoHost
+  - mongoUser
+  - mongoPassword  
