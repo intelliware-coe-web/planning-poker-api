@@ -30,7 +30,7 @@ exports.get_meeting = function(req, res) {
 
 exports.delete_meeting = function(req, res) {
   Meeting.remove({
-    _id: req.params.taskId
+    _id: req.params.meetingId
   }, function(err, meeting) {
     if (err)
       res.send(err);
