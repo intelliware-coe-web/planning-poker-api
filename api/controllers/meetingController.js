@@ -4,10 +4,10 @@ var mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting');
 
 exports.list_meetings = function(req, res) {
-  Meeting.find({}, function(err, task) {
+  Meeting.find({}, function(err, meetings) {
     if (err)
       res.send(err);
-    res.json(Meeting);
+    res.json(meetings);
   });
 };
 
