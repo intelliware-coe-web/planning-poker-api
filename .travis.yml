@@ -1,10 +1,19 @@
 language: node_js
 node_js:
-  - "stable"
+- stable
 cache:
   directories:
   - node_modules
 script:
-  - npm test
+- npm test
+deploy:
+  provider: gae
+  keyfile: client-secret.json
+  project: planning-poker-241613
+  on:
+    branch: master
 notifications:
   slack: intelliware:mzyu8GqG4LOunucRTp6texaW
+before_install:
+- openssl aes-256-cbc -K $encrypted_5644edef535c_key -iv $encrypted_5644edef535c_iv
+  -in client-secret.json.enc -out client-secret.json -d
