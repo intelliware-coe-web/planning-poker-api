@@ -32,6 +32,8 @@ app.use(bodyParser.json());
 var routes = require('./api/routes/routes'); //importing route
 routes(app); //register the route
 
-app.listen(port);
+app.listen(port, () => {
+  console.log('Planning Poker API server started on: ' + port);
+});
 
-console.log('Planning Poker API server started on: ' + port);
+module.exports = app;
