@@ -18,4 +18,9 @@ module.exports = function(app) {
   app.route('/meetings/:meetingId')
     .get(meetingList.get_meeting)
     .delete(meetingList.delete_meeting);
+
+  app.route('/meetings/:meetingId/attendees')
+    .get(meetingList.list_attendees)
+    .post(meetingList.create_attendee);
+  
 };
