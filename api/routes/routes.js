@@ -21,6 +21,7 @@ module.exports = function(app) {
 
   app.route('/meetings/:meetingId/attendees')
     .get(meetingList.list_attendees)
-    .post(meetingList.create_attendee);
+    .post(meetingList.create_attendee)
+    .delete(meetingList.delete_attendee);
   
 };

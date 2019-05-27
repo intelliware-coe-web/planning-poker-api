@@ -48,16 +48,39 @@ exports.list_attendees = function(req, res) {
   });
 };
 
-exports.create_attendee = function(req, res) {
+exports.delete_attendee = function(req, res) {
+  const userId = req.body.id;
+
   Meeting.findOneAndUpdate(
     { _id: req.params.meetingId },
-    { $push: { attendees: req.body.id } },
-    function(err, success) {
+    { $pullAll: {attendees: [userId]}},
+    function(err, meeting) {
       if (err) {
         res.send(err);
       } else {
-        res.json(success);
+        res.json({message: 'Attendee successfully removed'});
       }
+  })
+}
+
+exports.create_attendee = function(req, res) {
+  const userId = req.body.id;
+
+  User.findById(userId, function(err, user) {
+    if (user == null) {
+      res.send('No user found with that id');
     }
-  )
+
+    Meeting.findOneAndUpdate(
+      { _id: req.params.meetingId },
+      { $addToSet: { attendees: user } },
+      function(err, meeting) {
+        if (err) {
+          res.send(err);
+        } else {
+          res.json({message: 'Attendee successfully added'});
+        }
+      }
+    )
+  });
 };
