@@ -6,19 +6,5 @@ cache:
   - node_modules
 script:
 - npm test
-before_install:
-- openssl aes-256-cbc -K $encrypted_5644edef535c_key -iv $encrypted_5644edef535c_iv
-  -in credentials.tar.gz.enc -out credentials.tar.gz -d
-- tar -xzf credentials.tar.gz
-- gcloud auth activate-service-account --key-file client-secret.json
-- gcloud config set project planning-poker-241613
-deploy:
-  provider: gae
-  keyfile: client-secret.json
-  project: planning-poker-241613
-  skip_cleanup: true
-  default: true
-  on:
-    branch: master
 notifications:
   slack: intelliware:mzyu8GqG4LOunucRTp6texaW
