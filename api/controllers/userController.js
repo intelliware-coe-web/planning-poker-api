@@ -3,37 +3,25 @@
 var mongoose = require('mongoose'),
   User = mongoose.model('User');
 
+var utilController = require('../utils/utilController');
+var returnResponse = utilController.returnResponse;
+var returnDeleteResponse = utilController.returnDeleteResponse;
+
 exports.list_users = function(req, res) {
-  User.find({}, function(err, users) {
-    if (err)
-      res.send(err);
-    res.json(users);
-  });
+  User.find({}, returnResponse(res));
 };
 
 exports.create_user = function(req, res) {
   var new_user = new User(req.body);
-  new_user.save(function(err, user) {
-    if (err)
-      res.send(err);
-    res.json(user);
-  });
+  new_user.save(returnResponse(res));
 };
 
 exports.get_user = function(req, res) {
-  User.findById(req.params.userId, function(err, user) {
-    if (err)
-      res.send(err);
-    res.json(user);
-  });
+  User.findById(req.params.userId, returnResponse(res));
 };
 
 exports.delete_user = function(req, res) {
   User.remove({
     _id: req.params.userId
-  }, function(err, user) {
-    if (err)
-      res.send(err);
-    res.json({ message: 'User successfully deleted' });
-  });
+  }, returnDeleteResponse(res));
 };
