@@ -23,5 +23,10 @@ module.exports = function(app) {
     .get(meetingList.list_attendees)
     .post(meetingList.create_attendee)
     .delete(meetingList.delete_attendee);
+
+  app.route('/meetings/:meetingId/tickets')
+    .get(meetingList.list_tickets)
+    .post(meetingList.create_ticket)
+    .delete(meetingList.delete_ticket);
   
 };

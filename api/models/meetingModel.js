@@ -12,6 +12,10 @@ var MeetingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
+    tickets: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Ticket'
+    }],
     created_date: {
         type: Date,
         default: Date.now
