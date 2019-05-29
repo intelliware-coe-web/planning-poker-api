@@ -3,9 +3,6 @@ var chai = require('chai');
 var expect = chai.expect;
 var User = require('../models/userModel');
 
-var mongoose = require('mongoose');
-require('sinon-mongoose');
-
 describe('User controller', function() {
 
     describe('List all users', function() {
