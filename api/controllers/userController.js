@@ -1,13 +1,13 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-  User = mongoose.model('Users');
+  User = mongoose.model('User');
 
 exports.list_users = function(req, res) {
-  User.find({}, function(err, task) {
+  User.find({}, function(err, users) {
     if (err)
       res.send(err);
-    res.json(User);
+    res.json(users);
   });
 };
 
@@ -30,7 +30,7 @@ exports.get_user = function(req, res) {
 
 exports.delete_user = function(req, res) {
   User.remove({
-    _id: req.params.taskId
+    _id: req.params.userId
   }, function(err, user) {
     if (err)
       res.send(err);

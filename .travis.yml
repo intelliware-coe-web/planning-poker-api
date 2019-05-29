@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+- stable
+cache:
+  directories:
+  - node_modules
+script:
+- npm test
+notifications:
+  slack: intelliware:mzyu8GqG4LOunucRTp6texaW
