@@ -4,40 +4,28 @@ var mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
 User = mongoose.model('User');
 
+var utilController = require('../utils/utilController');
+var returnResponse = utilController.returnResponse;
+var returnDeleteResponse = utilController.returnDeleteResponse;
+
 exports.list_meetings = function(req, res) {
-  Meeting.find({}, function(err, meetings) {
-    if (err)
-      res.send(err);
-    res.json(meetings);
-  });
+  Meeting.find({}, returnResponse(res));
 };
 
 exports.create_meeting = function(req, res) {
   console.log(req.body.name);
   var new_meeting = new Meeting(req.body);
-  new_meeting.save(function(err, meeting) {
-    if (err)
-      res.send(err);
-    res.json(meeting);
-  });
+  new_meeting.save(returnResponse(res));
 };
 
 exports.get_meeting = function(req, res) {
-  Meeting.findById(req.params.meetingId, function(err, meeting) {
-    if (err)
-      res.send(err);
-    res.json(meeting);
-  });
+  Meeting.findById(req.params.meetingId, returnResponse(res));
 };
 
 exports.delete_meeting = function(req, res) {
   Meeting.remove({
     _id: req.params.meetingId
-  }, function(err, meeting) {
-    if (err)
-      res.send(err);
-    res.json({ message: 'Meeting successfully deleted' });
-  });
+  }, returnDeleteResponse(res));
 };
 
 exports.list_attendees = function(req, res) {
@@ -55,11 +43,9 @@ exports.delete_attendee = function(req, res) {
     { _id: req.params.meetingId },
     { $pullAll: {attendees: [userId]}},
     function(err, meeting) {
-      if (err) {
+      if (err)
         res.send(err);
-      } else {
-        res.json({message: 'Attendee successfully removed'});
-      }
+      res.json({message: 'Attendee successfully removed'});
   })
 }
 
@@ -75,11 +61,9 @@ exports.create_attendee = function(req, res) {
       { _id: req.params.meetingId },
       { $addToSet: { attendees: user } },
       function(err, meeting) {
-        if (err) {
+        if (err)
           res.send(err);
-        } else {
-          res.json({message: 'Attendee successfully added'});
-        }
+        res.json({message: 'Attendee successfully added'});
       }
     )
   });
