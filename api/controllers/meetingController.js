@@ -87,8 +87,14 @@ exports.create_attendee = function(req, res) {
 
 exports.list_tickets = function(req, res) {
   Meeting.findById(req.params.meetingId, function(err, meeting) {
-    if (err)
+    if (err) {
       res.send(err);
+      return;
+    }
+    if (meeting == null) {
+      res.json({message: "No meeting found for that id"});
+      return;
+    }
     res.json(meeting.tickets);
   });
 };
