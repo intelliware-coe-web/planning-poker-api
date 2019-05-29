@@ -4,6 +4,7 @@ var express = require('express'),
   mongoose = require('mongoose'),
   User = require('./api/models/userModel'), //created model loading here
   Meeting = require('./api/models/meetingModel'), 
+  Ticket = require('./api/models/ticketModel'),
   bodyParser = require('body-parser');
   
 // mongoose instance connection url connection
