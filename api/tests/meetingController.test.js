@@ -1,48 +1,107 @@
-let chai = require('chai');
-let chaiHttp = require('chai-http');
 let _ = require('lodash');
-
-// // Configure chai
-// chai.use(chaiHttp);
-// chai.should(); 
+let sinon = require('sinon');
 
 let User = require('../models/userModel');
 let Meeting = require('../models/meetingModel');
+let Ticket = require('../models/ticketModel');
 
 let fixture = require('../controllers/meetingController');
-let userMock, meetingMock;
 
-const mockResponse = () => {
-    const res = {};
-    res.status = sinon.stub().returns(res);
-    res.json = sinon.stub().returns(res);
-    return res;
-  };
-describe('Add Attendee', function() {
+
+describe('Meeting Controller', () => {
+    let req = {},
+    error = new Error({ error: "blah blah" }),
+    res = {};
+
     beforeEach(() => {
-        userMock = sinon.mock(User);
-        meetingMock = sinon.mock(Meeting);
+        res = {
+            json: sinon.spy(),
+            send: sinon.spy(),
+            status: sinon.stub().returns({ end: sinon.spy() })
+        };
     });
-
-
-    fit('should return success message', function(done) {
-        let req, res;
-        const mockMeetingId = 'mockMeetingId';
-        const mockUserId = 'mockId';
-        res = mockResponse();
-        _.set(req, 'body.id', mockUserId);
-        _.set(req, 'params.meetingId', mockMeetingId)                
-        
-        let mockUserResult = {status: true, user: { _id: mockUserId}};
-        userMock.expects('findById').withArgs({_id: mockUserId}).yields(null, mockUserResult);
-        
-        let mockMeetingResult = {status: true, meeting: {}};
-        meetingMock.expects('findOneAndUpdate').yields(null, mockMeetingResult);
-
-        fixture.create_attendee(req, res);
-        
-        expect(res.message).to.be('Attendee successfully added')   
-    });
-
+    describe('list meetings', () => {
+        let expectedResult, mockMeetingFind;
     
-})
+        beforeEach(() => {
+            mockMeetingFind = sinon.stub(Meeting, 'find');
+        });
+    
+        afterEach(() => {
+            mockMeetingFind.restore();
+        })
+    
+        it('should return a list of meetings', () => {
+            expectedResult = [];
+            mockMeetingFind.yields(null, expectedResult);
+    
+            fixture.list_meetings(req, res);
+
+            sinon.assert.calledWith(Meeting.find, {});
+            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+            
+        });
+    
+        it('should return error if there is a server error', () => {
+            mockMeetingFind.yields(error, null);
+
+            fixture.list_meetings(req, res);
+
+            sinon.assert.calledWith(Meeting.find, {});
+            sinon.assert.calledWith(res.send, sinon.match(error));
+        });
+    });
+
+    describe('create attendee', () => {
+        let mockMeetingFindOneAndUpdate, mockUserFindById;
+        
+        before(() => {
+            mockMeetingFindOneAndUpdate = sinon.stub(Meeting, 'findOneAndUpdate');
+            mockUserFindById = sinon.stub(User, 'findById');
+        });
+
+        after(() => {
+            mockMeetingFindOneAndUpdate.restore();
+            mockUserFindById.restore();
+        });
+
+        it('should return attendee added messsage', async () => {
+            const userId = '123abc';
+            const meetingId = 'abc123';
+
+            _.set(req, 'body.id', userId);
+            _.set(req, 'params.meetingId', meetingId);
+
+            const expectedUser = {_id: userId};
+            const expectedResult = {};
+            mockUserFindById.returns(expectedUser);
+            mockMeetingFindOneAndUpdate.returns(expectedResult);
+    
+            await fixture.create_attendee(req, res);
+
+            sinon.assert.calledWith(User.findById, {_id: userId});
+            sinon.assert.calledWith(Meeting.findOneAndUpdate, { _id: meetingId }, { $addToSet: { attendees: expectedUser } });
+            sinon.assert.calledWith(res.json, sinon.match({ message: 'Attendee successfully added' }));            
+        });
+
+        it('should return no user id if not in request', async () => {          
+            req.body = {};
+            await fixture.create_attendee(req, res);
+
+            sinon.assert.calledWith(res.json, sinon.match({ message: 'No user id' }));            
+        })
+
+        it('should return no user found if user not found', async () => {
+            const userId = '123abc';
+            _.set(req, 'body.id', userId);
+
+            mockUserFindById.throws({});
+    
+            await fixture.create_attendee(req, res);
+
+            sinon.assert.calledWith(User.findById, {_id: userId});
+            sinon.assert.calledWith(res.json, sinon.match({ message: 'No user found with that id' }));            
+        });
+    });
+});
+
