@@ -1,12 +1,11 @@
 let _ = require('lodash');
 let sinon = require('sinon');
 
-let User = require('../models/userModel');
-let Meeting = require('../models/meetingModel');
-let Ticket = require('../models/ticketModel');
+let User = require('../User/userModel');
+let Meeting = require('./meetingModel');
+let Story = require('../Story/storyModel');
 
-let fixture = require('../controllers/meetingController');
-
+let fixture = require('./meetingController');
 
 describe('Meeting Controller', () => {
     let req = {},

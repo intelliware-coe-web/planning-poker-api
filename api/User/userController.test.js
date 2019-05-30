@@ -1,7 +1,7 @@
 var sinon = require('sinon');
 var chai = require('chai');
 var expect = chai.expect;
-var User = require('../models/userModel');
+var User = require('./userModel');
 
 describe('User controller', function() {
 

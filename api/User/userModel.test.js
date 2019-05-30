@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
  
-var User = require('../models/userModel');
+var User = require('./userModel');
  
 describe('User Model', function() {
     it('should be invalid if name is empty', function(done) {

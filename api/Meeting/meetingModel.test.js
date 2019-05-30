@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
  
-var Meeting = require('../models/meetingModel');
+var Meeting = require('./meetingModel');
  
 describe('create Meeting', function() {
     it('should be invalid if name is empty', function(done) {
