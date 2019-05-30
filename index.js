@@ -34,9 +34,11 @@ app.use(bodyParser.json());
 
 // Register the routes
 let meetingRoutes = require('./api/Meeting/meetingRoutes'),
+    storyRoutes = require('./api/Story/storyRoutes'),
     userRoutes = require('./api/User/userRoutes');
-userRoutes(app); 
 meetingRoutes(app);
+storyRoutes(app);
+userRoutes(app); 
 
 app.listen(port, () => {
   console.log('Planning Poker API server started on: ' + port);

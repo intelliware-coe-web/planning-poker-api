@@ -1,12 +1,12 @@
 'use strict';
 module.exports = function(app) {
-  let userList = require('./userController');
+  let controller = require('./userController');
 
   app.route('/users')
-    .get(userList.list_users)
-    .post(userList.create_user);
+    .get(controller.list_users)
+    .post(controller.create_user);
 
   app.route('/users/:userId')
-    .get(userList.get_user)
-    .delete(userList.delete_user);
+    .get(controller.get_user)
+    .delete(controller.delete_user);
 };

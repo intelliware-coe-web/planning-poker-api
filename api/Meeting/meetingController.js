@@ -1,9 +1,8 @@
 const mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
-User = mongoose.model('User'),
-Ticket = mongoose.model('Ticket');
+User = mongoose.model('User');
 
-exports.list_meetings = function(req, res) {
+exports.list_meetings = (req, res) => {
   Meeting.find({}, function(err, meetings) {
     if (err)
       res.send(err);
@@ -79,53 +78,3 @@ exports.create_attendee = async function(req, res) {
     return res.json({ message: 'Attendee successfully added' });
   }  
 }
-
-exports.list_tickets = function(req, res) {
-  Meeting.findById(req.params.meetingId, function(err, meeting) {
-    if (err) {
-      res.send(err);
-      return;
-    }
-    if (meeting == null) {
-      res.json({message: "No meeting found for that id"});
-      return;
-    }
-    res.json(meeting.tickets);
-  });
-};
-
-exports.delete_ticket = function(req, res) {
-  const ticketId = req.body.id;
-
-  Meeting.findOneAndUpdate(
-    { _id: req.params.meetingId },
-    { $pullAll: {tickets: [ticketId]}},
-    function(err, meeting) {
-      if (err) {
-        res.send(err);
-      } else {
-        res.json({message: 'Ticket successfully removed'});
-      }
-  })
-}
-
-exports.create_ticket = function(req, res) {
-  let new_ticket = new Ticket(req.body);
-  new_ticket.save(function(err, ticket) {
-    if (err)
-      res.send(err);
-
-    Meeting.findOneAndUpdate(
-      { _id: req.params.meetingId },
-      { $addToSet: { tickets: new_ticket } },
-      function(err, meeting) {
-        if (err) {
-          res.send(err);
-        } else {
-          res.json({message: 'Ticket successfully added'});
-        }
-      }
-    )
-  });
-};
-
