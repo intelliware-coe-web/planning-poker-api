@@ -18,7 +18,7 @@ const host = nconf.get('mongoHost');
 const user = nconf.get('mongoUser');
 const password = nconf.get('mongoPassword');
 const mongoDBUri = `mongodb+srv://${user}:${password}@${host}/test?retryWrites=true`;
-mongoose.connect(mongoDBUri); 
+mongoose.connect(mongoDBUri, { useFindAndModify: false, useNewUrlParser: true }); 
 
 var corsOptions = {
   origin: ['https://intelliware-coe-web.github.io','http://localhost:3000'],

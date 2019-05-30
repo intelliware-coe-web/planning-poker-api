@@ -1,6 +1,4 @@
-'use strict';
-
-var mongoose = require('mongoose'),
+const mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
 User = mongoose.model('User'),
 Story = mongoose.model('Story');
@@ -63,27 +61,24 @@ exports.delete_attendee = function(req, res) {
   })
 }
 
-exports.create_attendee = function(req, res) {
+exports.create_attendee = async function(req, res) {
   const userId = req.body.id;
+  if (!userId) {
+    return res.json({ message: 'No user id' });    
+  } 
 
-  User.findById(userId, function(err, user) {
-    if (user == null) {
-      res.send('No user found with that id');
-    }
+  let user;
+  try {
+    user = await User.findById({_id: userId});
+  } catch (err) {
+    return res.json({ message: 'No user found with that id' });
+  }
 
-    Meeting.findOneAndUpdate(
-      { _id: req.params.meetingId },
-      { $addToSet: { attendees: user } },
-      function(err, meeting) {
-        if (err) {
-          res.send(err);
-        } else {
-          res.json({message: 'Attendee successfully added'});
-        }
-      }
-    )
-  });
-};
+  let meeting = await Meeting.findOneAndUpdate({ _id: req.params.meetingId },{ $addToSet: { attendees: user } });
+  if (meeting){
+    return res.json({ message: 'Attendee successfully added' });
+  }  
+}
 
 exports.list_stories = function(req, res) {
   Meeting.findById(req.params.meetingId, function(err, meeting) {
