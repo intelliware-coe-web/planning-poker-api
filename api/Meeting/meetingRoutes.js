@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function(app) {
-  var meetingList = require('./meetingController');
+  let meetingList = require('./meetingController');
 
   app.route('/meetings')
     .get(meetingList.list_meetings)

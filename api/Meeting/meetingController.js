@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
 User = mongoose.model('User'),
-Story = mongoose.model('Story');
+Ticket = mongoose.model('Ticket');
 
 exports.list_meetings = function(req, res) {
   Meeting.find({}, function(err, meetings) {
@@ -12,7 +12,7 @@ exports.list_meetings = function(req, res) {
 };
 
 exports.create_meeting = function(req, res) {
-  var new_meeting = new Meeting(req.body);
+  let new_meeting = new Meeting(req.body);
   new_meeting.save(function(err, meeting) {
     if (err)
       res.send(err);
@@ -80,7 +80,7 @@ exports.create_attendee = async function(req, res) {
   }  
 }
 
-exports.list_stories = function(req, res) {
+exports.list_tickets = function(req, res) {
   Meeting.findById(req.params.meetingId, function(err, meeting) {
     if (err) {
       res.send(err);
@@ -90,39 +90,39 @@ exports.list_stories = function(req, res) {
       res.json({message: "No meeting found for that id"});
       return;
     }
-    res.json(meeting.stories);
+    res.json(meeting.tickets);
   });
 };
 
-exports.delete_story = function(req, res) {
-  const storyId = req.body.id;
+exports.delete_ticket = function(req, res) {
+  const ticketId = req.body.id;
 
   Meeting.findOneAndUpdate(
     { _id: req.params.meetingId },
-    { $pullAll: {stories: [storyId]}},
+    { $pullAll: {tickets: [ticketId]}},
     function(err, meeting) {
       if (err) {
         res.send(err);
       } else {
-        res.json({message: 'Story successfully removed'});
+        res.json({message: 'Ticket successfully removed'});
       }
   })
 }
 
-exports.create_story = function(req, res) {
-  var new_story = new Story(req.body);
-  new_story.save(function(err, story) {
+exports.create_ticket = function(req, res) {
+  let new_ticket = new Ticket(req.body);
+  new_ticket.save(function(err, ticket) {
     if (err)
       res.send(err);
 
     Meeting.findOneAndUpdate(
       { _id: req.params.meetingId },
-      { $addToSet: { stories: new_story } },
+      { $addToSet: { tickets: new_ticket } },
       function(err, meeting) {
         if (err) {
           res.send(err);
         } else {
-          res.json({message: 'Story successfully added'});
+          res.json({message: 'Ticket successfully added'});
         }
       }
     )
