@@ -30,23 +30,23 @@ describe('Meeting Controller', () => {
             mockMeetingFind.restore();
         })
     
-        it('should return a list of meetings', () => {
+        it('should return a list of meetings', async () => {
             expectedResult = [];
-            mockMeetingFind.yields(null, expectedResult);
+            mockMeetingFind.returns(expectedResult);
     
-            fixture.list_meetings(req, res);
+            await fixture.list_meetings(req, res);
 
-            sinon.assert.calledWith(Meeting.find, {});
+            sinon.assert.called(Meeting.find);
             sinon.assert.calledWith(res.json, sinon.match(expectedResult));
             
         });
     
-        it('should return error if there is a server error', () => {
-            mockMeetingFind.yields(error, null);
+        it('should return error if there is a server error', async () => {
+            mockMeetingFind.throws(error);
 
-            fixture.list_meetings(req, res);
+            await fixture.list_meetings(req, res);
 
-            sinon.assert.calledWith(Meeting.find, {});
+            sinon.assert.calledWith(Meeting.find);
             sinon.assert.calledWith(res.send, sinon.match(error));
         });
     });

@@ -2,62 +2,67 @@ const mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
 User = mongoose.model('User');
 
-exports.list_meetings = (req, res) => {
-  Meeting.find({}, function(err, meetings) {
-    if (err)
-      res.send(err);
-    res.json(meetings);
-  });
+exports.list_meetings = async (req, res) => {
+  try {
+    const meetings = await Meeting.find();
+    return res.json(meetings);
+  } catch (err) {
+    return res.send(err);
+  }
 };
 
-exports.create_meeting = function(req, res) {
-  let new_meeting = new Meeting(req.body);
-  new_meeting.save(function(err, meeting) {
-    if (err)
-      res.send(err);
-    res.json(meeting);
-  });
+exports.create_meeting = async (req, res) => {
+  try {
+    const new_meeting = new Meeting(req.body);
+    await new_meeting.save();
+    return res.json(new_meeting)
+  } catch (err) {
+    return res.send(err);
+  }
 };
 
-exports.get_meeting = function(req, res) {
-  Meeting.findById(req.params.meetingId, function(err, meeting) {
-    if (err)
-      res.send(err);
-    res.json(meeting);
-  });
+exports.get_meeting = async (req, res) => {
+  try {
+    const meeting = await Meeting.findById(req.params.meetingId);
+    return res.json(meeting);
+  } catch(err) {
+    return res.send(err);
+  }
 };
 
-exports.delete_meeting = function(req, res) {
-  Meeting.remove({
-    _id: req.params.meetingId
-  }, function(err, meeting) {
-    if (err)
-      res.send(err);
-    res.json({ message: 'Meeting successfully deleted' });
-  });
+exports.delete_meeting = async (req, res) => {
+  try {
+    await Meeting.remove({_id: req.params.meetingId});
+    return res.json({message: 'Meeting successfully deleted'});
+  } catch(err) {
+    return res.send(err);
+  }
 };
 
-exports.list_attendees = function(req, res) {
-  Meeting.findById(req.params.meetingId, function(err, meeting) {
-    if (err)
-      res.send(err);
-    res.json(meeting.attendees);
-  });
+exports.list_attendees = async (req, res) => {
+  try {
+    const meeting = await Meeting.findById(req.params.meetingId);
+    return res.json(meeting.attendees);
+  } catch(err) {
+    return res.send(err);
+  }
 };
 
-exports.delete_attendee = function(req, res) {
+exports.delete_attendee = async (req, res) => {
   const userId = req.body.id;
+  if (!userId) {
+    return res.json({ message: 'No user id' });    
+  } 
 
-  Meeting.findOneAndUpdate(
-    { _id: req.params.meetingId },
-    { $pullAll: {attendees: [userId]}},
-    function(err, meeting) {
-      if (err) {
-        res.send(err);
-      } else {
-        res.json({message: 'Attendee successfully removed'});
-      }
-  })
+  try {
+    await Meeting.findOneAndUpdate(
+      { _id: req.params.meetingId },
+      { $pullAll: {attendees: [userId]}}
+    );
+    return res.json({message: 'Attendee successfully removed'});
+  } catch (err) {
+    return res.send(err);
+  }
 }
 
 exports.create_attendee = async function(req, res) {
