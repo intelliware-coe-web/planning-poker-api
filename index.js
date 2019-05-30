@@ -7,9 +7,9 @@ var express = require('express'),
   app = express(),
   port = process.env.PORT || 9000,
   mongoose = require('mongoose'),
-  User = require('./api/models/userModel'), //created model loading here
-  Meeting = require('./api/models/meetingModel'), 
-  Ticket = require('./api/models/ticketModel'),
+  User = require('./api/User/userModel'), //created model loading here
+  Meeting = require('./api/Meeting/meetingModel'), 
+  Story = require('./api/Story/storyModel'),
   bodyParser = require('body-parser');
   
 // mongoose instance connection url connection
@@ -30,8 +30,10 @@ app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var routes = require('./api/routes/routes'); //importing route
-routes(app); //register the route
+var meetingRoutes = require('./api/Meeting/meetingRoutes'),
+    userRoutes = require('./api/User/userRoutes'); //importing route
+userRoutes(app); //register the route
+meetingRoutes(app);
 
 app.listen(port, () => {
   console.log('Planning Poker API server started on: ' + port);

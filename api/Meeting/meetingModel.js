@@ -12,9 +12,9 @@ var MeetingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
-    tickets: [{
+    stories: [{
         type: Schema.Types.ObjectId,
-        ref: 'Ticket'
+        ref: 'Story'
     }],
     created_date: {
         type: Date,

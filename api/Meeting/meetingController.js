@@ -3,7 +3,7 @@
 var mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
 User = mongoose.model('User'),
-Ticket = mongoose.model('Ticket');
+Story = mongoose.model('Story');
 
 exports.list_meetings = function(req, res) {
   Meeting.find({}, function(err, meetings) {
@@ -85,7 +85,7 @@ exports.create_attendee = function(req, res) {
   });
 };
 
-exports.list_tickets = function(req, res) {
+exports.list_stories = function(req, res) {
   Meeting.findById(req.params.meetingId, function(err, meeting) {
     if (err) {
       res.send(err);
@@ -95,39 +95,39 @@ exports.list_tickets = function(req, res) {
       res.json({message: "No meeting found for that id"});
       return;
     }
-    res.json(meeting.tickets);
+    res.json(meeting.stories);
   });
 };
 
-exports.delete_ticket = function(req, res) {
-  const ticketId = req.body.id;
+exports.delete_story = function(req, res) {
+  const storyId = req.body.id;
 
   Meeting.findOneAndUpdate(
     { _id: req.params.meetingId },
-    { $pullAll: {tickets: [ticketId]}},
+    { $pullAll: {stories: [storyId]}},
     function(err, meeting) {
       if (err) {
         res.send(err);
       } else {
-        res.json({message: 'Ticket successfully removed'});
+        res.json({message: 'Story successfully removed'});
       }
   })
 }
 
-exports.create_ticket = function(req, res) {
-  var new_ticket = new Ticket(req.body);
-  new_ticket.save(function(err, ticket) {
+exports.create_story = function(req, res) {
+  var new_story = new Story(req.body);
+  new_story.save(function(err, story) {
     if (err)
       res.send(err);
 
     Meeting.findOneAndUpdate(
       { _id: req.params.meetingId },
-      { $addToSet: { tickets: new_ticket } },
+      { $addToSet: { stories: new_story } },
       function(err, meeting) {
         if (err) {
           res.send(err);
         } else {
-          res.json({message: 'Ticket successfully added'});
+          res.json({message: 'Story successfully added'});
         }
       }
     )

@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var TicketSchema = new Schema({
+var StorySchema = new Schema({
     name: {
         type: String,
         required: 'Name is required'
@@ -16,4 +16,4 @@ var TicketSchema = new Schema({
     } 
 });
 
-module.exports = mongoose.model('Ticket', TicketSchema);
+module.exports = mongoose.model('Story', StorySchema);
