@@ -27,7 +27,7 @@ describe('Meeting Controller', () => {
     
         afterEach(() => {
             mockMeetingFind.restore();
-        })
+        });
     
         it('should return a list of meetings', async () => {
             expectedResult = [];
@@ -87,7 +87,7 @@ describe('Meeting Controller', () => {
             await fixture.create_attendee(req, res);
 
             sinon.assert.calledWith(res.json, sinon.match({ message: 'No user id' }));            
-        })
+        });
 
         it('should return no user found if user not found', async () => {
             const userId = '123abc';

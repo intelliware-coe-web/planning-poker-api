@@ -63,7 +63,7 @@ exports.delete_attendee = async (req, res) => {
   } catch (err) {
     return res.send(err);
   }
-}
+};
 
 exports.create_attendee = async function(req, res) {
   const userId = req.body.id;
@@ -82,4 +82,4 @@ exports.create_attendee = async function(req, res) {
   if (meeting){
     return res.json({ message: 'Attendee successfully added' });
   }  
-}
+};

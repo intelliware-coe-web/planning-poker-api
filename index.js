@@ -12,8 +12,9 @@ let express = require('express'),
 // Load Models
 let User = require('./api/User/userModel'), 
   Meeting = require('./api/Meeting/meetingModel'), 
-  Story = require('./api/Story/storyModel');
-  
+  Story = require('./api/Story/storyModel'),
+  Estimate = require('./api/Story/estimateModel');
+
 // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
 const host = nconf.get('mongoHost');

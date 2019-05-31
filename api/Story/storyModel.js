@@ -7,8 +7,12 @@ let StorySchema = new Schema({
         type: String,
         required: 'Name is required'
     },
-    description: [{
+    description: {
         type: String
+    },
+    estimates: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Estimate'
     }],
     created_date: {
         type: Date,
