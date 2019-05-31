@@ -5,7 +5,8 @@ let Schema = mongoose.Schema;
 let EstimateSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: 'You need a user'
     },
     estimate: {
         type: Number
