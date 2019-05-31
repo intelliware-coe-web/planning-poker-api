@@ -1,39 +1,39 @@
-'use strict';
+const mongoose = require('mongoose'),
+User = mongoose.model('User');
 
-let mongoose = require('mongoose'),
-  User = mongoose.model('User');
-
-exports.list_users = function(req, res) {
-  User.find({}, function(err, users) {
-    if (err)
-      res.send(err);
-    res.json(users);
-  });
+exports.list_users = async(req, res) => {
+  try {
+      const users = await User.find();
+      return res.json(users);
+  } catch (err) {
+    res.send(err);
+  }
 };
 
-exports.create_user = function(req, res) {
-  let new_user = new User(req.body);
-  new_user.save(function(err, user) {
-    if (err)
-      res.send(err);
-    res.json(user);
-  });
+exports.create_user = async(req, res) => {
+  try {
+    let new_user = new User(req.body);
+    const user = await new_user.save();
+    return res.json(user);
+  } catch (err) {
+    res.send(err);
+  }
 };
 
-exports.get_user = function(req, res) {
-  User.findById(req.params.userId, function(err, user) {
-    if (err)
-      res.send(err);
-    res.json(user);
-  });
+exports.get_user = async(req, res) => {
+  try {
+      const user = await User.findById(req.params.userId);
+      return res.json(user);
+  } catch (err) {
+    res.send(err);
+  }
 };
 
-exports.delete_user = function(req, res) {
-  User.remove({
-    _id: req.params.userId
-  }, function(err, user) {
-    if (err)
-      res.send(err);
-    res.json({ message: 'User successfully deleted' });
-  });
+exports.delete_user = async(req, res) => {
+  try {
+    await User.remove({_id: req.params.userId});
+    return res.json({message: 'User successfully deleted'});
+  } catch(err) {
+    return res.send(err);
+  }
 };
