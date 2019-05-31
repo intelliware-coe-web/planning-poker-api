@@ -1,2 +1,8 @@
 node_modules/
 keys.json
+
+# intellij
+.idea/*
+
+# misc
+.DS_Store
