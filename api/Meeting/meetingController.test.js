@@ -3,7 +3,6 @@ let sinon = require('sinon');
 
 let User = require('../User/userModel');
 let Meeting = require('./meetingModel');
-let Story = require('../Story/storyModel');
 
 let fixture = require('./meetingController');
 
