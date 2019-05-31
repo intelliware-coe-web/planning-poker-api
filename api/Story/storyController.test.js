@@ -20,8 +20,8 @@ describe('Story Controller', () => {
             status: sinon.stub().returns({ end: sinon.spy() })
         };
     });
+
     describe('get story by id', () => {
-        const storyName = 'Story Name';
         const storyId = '123456789';
         let expectedResult, mockStoryFind;
 
@@ -53,6 +53,43 @@ describe('Story Controller', () => {
             await fixture.get_story(req, res);
 
             sinon.assert.calledWith(Story.findById, storyId);
+            sinon.assert.calledWith(res.send, sinon.match(error));
+        });
+    });
+
+
+    describe('get estimate by id', () => {
+        const estimateId = '123456789';
+        let expectedResult, mockEstimateFind;
+
+        beforeEach(() => {
+            mockEstimateFind = sinon.stub(Estimate, 'findById');
+        });
+
+        afterEach(() => {
+            mockEstimateFind.restore();
+        });
+
+        it('should return a story', async () => {
+            expectedResult = {_id: estimateId};
+
+            mockEstimateFind.returns(expectedResult);
+
+            _.set(req, 'params.estimateId', estimateId);
+
+            await fixture.get_estimate(req, res);
+
+            sinon.assert.calledWith(Estimate.findById, estimateId);
+            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+
+        });
+
+        it('should return error if there is a server error', async () => {
+            mockEstimateFind.throws(error);
+
+            await fixture.get_estimate(req, res);
+
+            sinon.assert.calledWith(Estimate.findById, estimateId);
             sinon.assert.calledWith(res.send, sinon.match(error));
         });
     });
