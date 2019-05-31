@@ -1,117 +1,151 @@
+let _ = require('lodash');
 let sinon = require('sinon');
-let chai = require('chai');
-let expect = chai.expect;
+
 let User = require('./userModel');
+let fixture = require('./userController');
 
 describe('User controller', function() {
+    let req = {},
+    error = new Error({ error: "blah blah" }),
+    res = {};
 
-    describe('List all users', function() {
-        it('should return all users', function(done) {
-            let userMock = sinon.mock(User);
-            let expectedResult = {status: true, users: []};
-            userMock.expects('find').yields(null, expectedResult);
-            User.find(function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(result.status).to.be.true;
-                done();
-            });
+    beforeEach(() => {
+        res = {
+            json: sinon.spy(),
+            send: sinon.spy(),
+            status: sinon.stub().returns({ end: sinon.spy() })
+        };
+    });
+
+    describe('List users', function() {
+        let expectedResult, mockUserFind;
+    
+        beforeEach(() => {
+            mockUserFind = sinon.stub(User, 'find');
+        });
+    
+        afterEach(() => {
+            mockUserFind.restore();
+        })
+
+        it('should return all users', async() => {
+            expectedResult = [];
+            mockUserFind.returns(expectedResult);
+
+            await fixture.list_users(req, res);
+
+            sinon.assert.called(User.find);
+            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
         });
 
-        it('should return error', function(done) {
-            let userMock = sinon.mock(User);
-            let expectedResult = {status: false, error: "Something went wrong"};
-            userMock.expects('find').yields(expectedResult, null);
-            User.find(function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(err.status).to.not.be.true;
-                done();
-            });
+        it('should return error if there is a server error', async () => {
+            mockUserFind.throws(error);
+
+            await fixture.list_users(req, res);
+
+            sinon.assert.calledWith(User.find);
+            sinon.assert.calledWith(res.send, sinon.match(error));
         });
     });
 
-    describe('Create a new user', function() {
-        it('should create new user', function(done) {
-            let userMock = sinon.mock(new User({
-                name: 'Test User'
-            }));
-            let user = userMock.object;
-            let expectedResult = {status: true};
-            userMock.expects('save').yields(null, expectedResult);
-            user.save(function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(result.status).to.be.true;
-                done();
-            });
+    describe('Create user', function() {
+        let mockUserSave;
+        
+        before(() => {
+            mockUserSave = sinon.stub(User.prototype, 'save');
         });
 
-        it('should return error, if create not saved', function(done) {
-            let userMock = sinon.mock(new User({
-                name: 'Test User'
-            }));
-            let user = userMock.object;
-            let expectedResult = {status: false};
-            userMock.expects('save').yields(expectedResult, null);
-            user.save(function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(err.status).to.not.be.true;
-                done();
-            });
-        });
-    });
-
-    describe('Get a user by id', function() {
-        it('should return a user', function(done) {
-            let userMock = sinon.mock(User);
-            let expectedResult = {status: true, user: { _id: 12345, name: 'Test user', Created_date: Date.now }};
-            userMock.expects('findById').withArgs({_id:12345}).yields(null, expectedResult);
-            User.findById({_id:12345}, function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(result.status).to.be.true;
-                done();
-            });
+        after(() => {
+            mockUserSave.restore();
         });
 
-        it('should return error', function(done) {
-            let userMock = sinon.mock(User);
-            let expectedResult = {status: false, error: "Something went wrong"};
-            userMock.expects('findById').withArgs({_id:12345}).yields(expectedResult, null);
-            User.findById({_id:12345}, function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(err.status).to.not.be.true;
-                done();
-            });
+        it('should create new user', async() => {
+            const expectedResult = {};
+            mockUserSave.returns(expectedResult);
+    
+            await fixture.create_user(req, res);
+
+            sinon.assert.calledWith(mockUserSave);
+            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+        });
+
+        it('should return error if there is a server error', async() => {
+            mockUserSave.throws(error);
+
+            await fixture.create_user(req, res);
+
+            sinon.assert.calledWith(mockUserSave);
+            sinon.assert.calledWith(res.send, sinon.match(error));
         });
     });
 
-    describe('Delete a user by id', function() {
-        it('should delete a user', function(done) {
-            let userMock = sinon.mock(User);
-            let expectedResult = {status: true};
-            userMock.expects('remove').withArgs({_id:12345}).yields(null, expectedResult);
-            User.remove({_id:12345}, function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(result.status).to.be.true;
-                done();
-            });
+    describe('Get user by id', function() {
+        let mockUserFindById;
+        
+        before(() => {
+            mockUserFindById = sinon.stub(User, 'findById');
         });
 
-        it('should return error', function(done) {
-            let userMock = sinon.mock(User);
-            let expectedResult = {status: false};
-            userMock.expects('remove').withArgs({_id:12345}).yields(expectedResult, null);
-            User.remove({_id:12345}, function (err, result) {
-                userMock.verify();
-                userMock.restore();
-                expect(err.status).to.not.be.true;
-                done();
-            });
+        after(() => {
+            mockUserFindById.restore();
+        });
+
+        it('should return the user', async() => {
+            const userId = '123abc';
+            _.set(req, 'params.userId', userId);
+
+            const expectedResult = {};
+            mockUserFindById.returns(expectedResult);
+    
+            await fixture.get_user(req, res);
+
+            sinon.assert.calledWith(User.findById, userId);
+            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+        });        
+
+        it('should return error if there is a server error', async() => {
+            mockUserFindById.throws(error);
+
+            await fixture.get_user(req, res);
+
+            sinon.assert.calledWith(User.findById);
+            sinon.assert.calledWith(res.send, sinon.match(error));
+        });
+    });
+
+    describe('Delete user by id', function() {
+        let mockUserRemove;
+        
+        before(() => {
+            mockUserRemove = sinon.stub(User, 'remove');
+        });
+
+        after(() => {
+            mockUserRemove.restore();
+        });
+
+        it('should delete the user', async() => {
+            const userId = '123abc';
+            _.set(req, 'params.userId', userId);
+
+            const expectedResult = {
+                message: 'User successfully deleted'
+            };
+            mockUserRemove.returns({});
+
+            await fixture.delete_user(req, res);
+
+            sinon.assert.calledWith(User.remove, {_id: userId});
+            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+        });
+
+        it('should return error if there is a server error', async() => {
+            mockUserRemove.throws(error);
+
+            await fixture.delete_user(req, res);
+
+            sinon.assert.calledWith(User.remove);
+            sinon.assert.calledWith(res.send, sinon.match(error));
         });
     });
 
