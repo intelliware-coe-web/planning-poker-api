@@ -6,5 +6,6 @@ cache:
   - node_modules
 script:
 - npm test
+after_success: npm run coverage
 notifications:
   slack: intelliware:mzyu8GqG4LOunucRTp6texaW

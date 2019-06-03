@@ -23,7 +23,7 @@ exports.delete_story = async (req, res) => {
     await Story.remove({_id: storyId});
     return res.json({message: 'Story successfully removed'});
   } catch (err){
-    return res.send(err);
+    return sendError(res, err);
   }
 };
 
@@ -35,7 +35,7 @@ exports.create_story = async (req, res) => {
     await Meeting.findOneAndUpdate({ _id: req.params.meetingId },{ $addToSet: { stories: new_story } });
     return res.json({ message: 'Story successfully added' });
   } catch (err) {
-    return res.send(err);
+    return sendError(res, err);
   }
 };
 
@@ -68,7 +68,7 @@ exports.update_story = async (req, res) => {
       return res.json({ message: 'Estimate successfully updated' });
   }
   catch(err){
-      return res.send(err);
+      return sendError(res, err);
   }
 };
 
@@ -77,7 +77,7 @@ exports.get_estimate = async (req, res) => {
         const estimate = await Estimate.findById(req.params.estimateId);
         return res.json(estimate);
     } catch(err) {
-        return res.send(err);
+        return sendError(res, err);
     }
 };
 
@@ -86,11 +86,11 @@ exports.get_story = async (req, res) => {
       const story = await Story.findById(req.params.storyId);
       return res.json(story);
   } catch(err) {
-      return res.send(err);
+      return sendError(res, err);
   }
 };
 
 // TODO: should we pull this out into something generic?
 function sendError(res, err) {
-  return res.send(err);
+  return res.status(500).send(err);
 }

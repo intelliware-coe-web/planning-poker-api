@@ -6,3 +6,7 @@ keys.json
 
 # misc
 .DS_Store
+
+# istabul coverage
+.nyc_output/
+coverage/

@@ -17,7 +17,7 @@ describe('Story Controller', () => {
         res = {
             json: sinon.spy(),
             send: sinon.spy(),
-            status: sinon.stub().returns({ end: sinon.spy() })
+            status: () => res
         };
     });
 
