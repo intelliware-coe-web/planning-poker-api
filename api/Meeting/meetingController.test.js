@@ -1,10 +1,10 @@
-let _ = require('lodash');
-let sinon = require('sinon');
+const _ = require('lodash');
+const {spy,stub, assert, match} = require('sinon');
 
-let User = require('../User/userModel');
-let Meeting = require('./meetingModel');
+const User = require('../User/userModel');
+const Meeting = require('./meetingModel');
 
-let fixture = require('./meetingController');
+const fixture = require('./meetingController');
 
 describe('Meeting Controller', () => {
     let req = {},
@@ -13,16 +13,16 @@ describe('Meeting Controller', () => {
 
     beforeEach(() => {
         res = {
-            json: sinon.spy(),
-            send: sinon.spy(),
-            status: sinon.stub().returns({ end: sinon.spy() })
+            json: spy(),
+            send: spy(),
+            status: stub().returns(res)
         };
     });
     describe('list meetings', () => {
         let expectedResult, mockMeetingFind;
     
         beforeEach(() => {
-            mockMeetingFind = sinon.stub(Meeting, 'find');
+            mockMeetingFind = stub(Meeting, 'find');
         });
     
         afterEach(() => {
@@ -35,8 +35,8 @@ describe('Meeting Controller', () => {
     
             await fixture.list_meetings(req, res);
 
-            sinon.assert.called(Meeting.find);
-            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+            assert.called(Meeting.find);
+            assert.calledWith(res.json, match(expectedResult));
             
         });
     
@@ -45,8 +45,8 @@ describe('Meeting Controller', () => {
 
             await fixture.list_meetings(req, res);
 
-            sinon.assert.calledWith(Meeting.find);
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            assert.calledWith(Meeting.find);
+            assert.calledWith(res.send, match(error));
         });
     });
 
@@ -54,8 +54,8 @@ describe('Meeting Controller', () => {
         let mockMeetingFindOneAndUpdate, mockUserFindById;
         
         before(() => {
-            mockMeetingFindOneAndUpdate = sinon.stub(Meeting, 'findOneAndUpdate');
-            mockUserFindById = sinon.stub(User, 'findById');
+            mockMeetingFindOneAndUpdate = stub(Meeting, 'findOneAndUpdate');
+            mockUserFindById = stub(User, 'findById');
         });
 
         after(() => {
@@ -77,16 +77,16 @@ describe('Meeting Controller', () => {
     
             await fixture.add_attendee(req, res);
 
-            sinon.assert.calledWith(User.findById, {_id: userId});
-            sinon.assert.calledWith(Meeting.findOneAndUpdate, { _id: meetingId }, { $addToSet: { attendees: expectedUser } });
-            sinon.assert.calledWith(res.json, sinon.match({ message: 'Attendee successfully added' }));            
+            assert.calledWith(User.findById, {_id: userId});
+            assert.calledWith(Meeting.findOneAndUpdate, { _id: meetingId }, { $addToSet: { attendees: expectedUser } });
+            assert.calledWith(res.json, match({ message: 'Attendee successfully added' }));            
         });
 
         it('should return no user id if not in request', async () => {          
             req.body = {};
             await fixture.add_attendee(req, res);
 
-            sinon.assert.calledWith(res.json, sinon.match({ message: 'No user id' }));            
+            assert.calledWith(res.json, match({ message: 'No user id' }));            
         });
 
         it('should return no user found if user not found', async () => {
@@ -97,8 +97,8 @@ describe('Meeting Controller', () => {
     
             await fixture.add_attendee(req, res);
 
-            sinon.assert.calledWith(User.findById, {_id: userId});
-            sinon.assert.calledWith(res.json, sinon.match({ message: 'No user found with that id' }));            
+            assert.calledWith(User.findById, {_id: userId});
+            assert.calledWith(res.json, match({ message: 'No user found with that id' }));            
         });
     });
 });

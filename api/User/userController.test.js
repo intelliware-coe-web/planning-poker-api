@@ -1,8 +1,8 @@
-let _ = require('lodash');
-let sinon = require('sinon');
+const _ = require('lodash');
+const {spy,stub, assert, match} = require('sinon');
 
-let User = require('./userModel');
-let fixture = require('./userController');
+const User = require('./userModel');
+const fixture = require('./userController');
 
 describe('User controller', function() {
     let req = {},
@@ -11,9 +11,9 @@ describe('User controller', function() {
 
     beforeEach(() => {
         res = {
-            json: sinon.spy(),
-            send: sinon.spy(),
-            status: sinon.stub().returns({ end: sinon.spy() })
+            json: spy(),
+            send: spy(),
+            status: stub().returns(res)
         };
     });
 
@@ -21,7 +21,7 @@ describe('User controller', function() {
         let expectedResult, mockUserFind;
     
         beforeEach(() => {
-            mockUserFind = sinon.stub(User, 'find');
+            mockUserFind = stub(User, 'find');
         });
     
         afterEach(() => {
@@ -34,8 +34,8 @@ describe('User controller', function() {
 
             await fixture.list_users(req, res);
 
-            sinon.assert.called(User.find);
-            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+            assert.called(User.find);
+            assert.calledWith(res.json, match(expectedResult));
         });
 
         it('should return error if there is a server error', async () => {
@@ -43,8 +43,8 @@ describe('User controller', function() {
 
             await fixture.list_users(req, res);
 
-            sinon.assert.calledWith(User.find);
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            assert.calledWith(User.find);
+            assert.calledWith(res.send, match(error));
         });
     });
 
@@ -52,7 +52,7 @@ describe('User controller', function() {
         let mockUserSave;
         
         before(() => {
-            mockUserSave = sinon.stub(User.prototype, 'save');
+            mockUserSave = stub(User.prototype, 'save');
         });
 
         after(() => {
@@ -65,8 +65,8 @@ describe('User controller', function() {
     
             await fixture.create_user(req, res);
 
-            sinon.assert.calledWith(mockUserSave);
-            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+            assert.calledWith(mockUserSave);
+            assert.calledWith(res.json, match(expectedResult));
         });
 
         it('should return error if there is a server error', async() => {
@@ -74,8 +74,8 @@ describe('User controller', function() {
 
             await fixture.create_user(req, res);
 
-            sinon.assert.calledWith(mockUserSave);
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            assert.calledWith(mockUserSave);
+            assert.calledWith(res.send, match(error));
         });
     });
 
@@ -83,7 +83,7 @@ describe('User controller', function() {
         let mockUserFindById;
         
         before(() => {
-            mockUserFindById = sinon.stub(User, 'findById');
+            mockUserFindById = stub(User, 'findById');
         });
 
         after(() => {
@@ -99,8 +99,8 @@ describe('User controller', function() {
     
             await fixture.get_user(req, res);
 
-            sinon.assert.calledWith(User.findById, userId);
-            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+            assert.calledWith(User.findById, userId);
+            assert.calledWith(res.json, match(expectedResult));
         });        
 
         it('should return error if there is a server error', async() => {
@@ -108,8 +108,8 @@ describe('User controller', function() {
 
             await fixture.get_user(req, res);
 
-            sinon.assert.calledWith(User.findById);
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            assert.calledWith(User.findById);
+            assert.calledWith(res.send, match(error));
         });
     });
 
@@ -117,7 +117,7 @@ describe('User controller', function() {
         let mockUserRemove;
         
         before(() => {
-            mockUserRemove = sinon.stub(User, 'remove');
+            mockUserRemove = stub(User, 'remove');
         });
 
         after(() => {
@@ -135,8 +135,8 @@ describe('User controller', function() {
 
             await fixture.delete_user(req, res);
 
-            sinon.assert.calledWith(User.remove, {_id: userId});
-            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+            assert.calledWith(User.remove, {_id: userId});
+            assert.calledWith(res.json, match(expectedResult));
         });
 
         it('should return error if there is a server error', async() => {
@@ -144,8 +144,8 @@ describe('User controller', function() {
 
             await fixture.delete_user(req, res);
 
-            sinon.assert.calledWith(User.remove);
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            assert.calledWith(User.remove);
+            assert.calledWith(res.send, match(error));
         });
     });
 
