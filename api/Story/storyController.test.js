@@ -1,24 +1,23 @@
-let _ = require('lodash');
-let sinon = require('sinon');
+const _ = require('lodash');
+const {spy,stub, assert, match} = require('sinon');
+const Story = require('./storyModel');
+const Estimate = require('./estimateModel');
 
-let User = require('../User/userModel');
-let Meeting = require('../Meeting/meetingModel');
-let Story = require('./storyModel');
-let Estimate = require('./estimateModel');
-
-let fixture = require('./storyController');
+const fixture = require('./storyController');
 
 describe('Story Controller', () => {
     let req = {},
         error = new Error({ error: "blah blah" }),
-        res = {};
+        res = {}, status, send, json;
 
     beforeEach(() => {
-        res = {
-            json: sinon.spy(),
-            send: sinon.spy(),
-            status: () => res
-        };
+        json = spy();
+        send = spy();
+        status = stub();
+
+        res = { json, status, send};
+
+        status.returns(res);
     });
 
     describe('get story by id', () => {
@@ -26,7 +25,7 @@ describe('Story Controller', () => {
         let expectedResult, mockStoryFind;
 
         beforeEach(() => {
-            mockStoryFind = sinon.stub(Story, 'findById');
+            mockStoryFind = stub(Story, 'findById');
         });
 
         afterEach(() => {
@@ -42,18 +41,18 @@ describe('Story Controller', () => {
 
             await fixture.get_story(req, res);
 
-            sinon.assert.calledWith(Story.findById, storyId);
-            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
-
+            assert.calledWith(Story.findById, storyId);
+            json.calledWith(match(expectedResult));            
         });
-
+        
         it('should return error if there is a server error', async () => {
             mockStoryFind.throws(error);
-
+            
             await fixture.get_story(req, res);
-
-            sinon.assert.calledWith(Story.findById, storyId);
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            
+            assert.calledWith(Story.findById, storyId);
+            status.calledWith(500);
+            send.calledWith(match(error));
         });
     });
 
@@ -63,7 +62,7 @@ describe('Story Controller', () => {
         let expectedResult, mockEstimateFind;
 
         beforeEach(() => {
-            mockEstimateFind = sinon.stub(Estimate, 'findById');
+            mockEstimateFind = stub(Estimate, 'findById');
         });
 
         afterEach(() => {
@@ -79,8 +78,8 @@ describe('Story Controller', () => {
 
             await fixture.get_estimate(req, res);
 
-            sinon.assert.calledWith(Estimate.findById, estimateId);
-            sinon.assert.calledWith(res.json, sinon.match(expectedResult));
+            assert.calledWith(Estimate.findById, estimateId);
+            json.calledWith(match(expectedResult))
 
         });
 
@@ -89,8 +88,9 @@ describe('Story Controller', () => {
 
             await fixture.get_estimate(req, res);
 
-            sinon.assert.calledWith(Estimate.findById, estimateId);
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            assert.calledWith(Estimate.findById, estimateId);
+            send.calledWith(match(error));
+            status.calledWith(500);
         });
     });
 });
