@@ -65,7 +65,7 @@ exports.delete_attendee = async (req, res) => {
   }
 };
 
-exports.create_attendee = async function(req, res) {
+exports.add_attendee = async function(req, res) {
   const userId = req.body.id;
   if (!userId) {
     return res.json({ message: 'No user id' });    

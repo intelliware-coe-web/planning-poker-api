@@ -50,7 +50,7 @@ describe('Meeting Controller', () => {
         });
     });
 
-    describe('create attendee', () => {
+    describe('add attendee', () => {
         let mockMeetingFindOneAndUpdate, mockUserFindById;
         
         before(() => {
@@ -75,7 +75,7 @@ describe('Meeting Controller', () => {
             mockUserFindById.returns(expectedUser);
             mockMeetingFindOneAndUpdate.returns(expectedResult);
     
-            await fixture.create_attendee(req, res);
+            await fixture.add_attendee(req, res);
 
             sinon.assert.calledWith(User.findById, {_id: userId});
             sinon.assert.calledWith(Meeting.findOneAndUpdate, { _id: meetingId }, { $addToSet: { attendees: expectedUser } });
@@ -84,7 +84,7 @@ describe('Meeting Controller', () => {
 
         it('should return no user id if not in request', async () => {          
             req.body = {};
-            await fixture.create_attendee(req, res);
+            await fixture.add_attendee(req, res);
 
             sinon.assert.calledWith(res.json, sinon.match({ message: 'No user id' }));            
         });
@@ -95,7 +95,7 @@ describe('Meeting Controller', () => {
 
             mockUserFindById.throws({});
     
-            await fixture.create_attendee(req, res);
+            await fixture.add_attendee(req, res);
 
             sinon.assert.calledWith(User.findById, {_id: userId});
             sinon.assert.calledWith(res.json, sinon.match({ message: 'No user found with that id' }));            
