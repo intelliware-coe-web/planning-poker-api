@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const {spy,stub, assert, match} = require('sinon');
+
 const Story = require('./storyModel');
 const Estimate = require('./estimateModel');
 

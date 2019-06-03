@@ -1,6 +1,6 @@
-let expect = require('chai').expect;
+const expect = require('chai').expect;
  
-let Meeting = require('./meetingModel');
+const Meeting = require('./meetingModel');
  
 describe('create Meeting', function() {
     it('should be invalid if name is empty', function(done) {

@@ -1,6 +1,6 @@
-let expect = require('chai').expect;
+const expect = require('chai').expect;
 
-let Estimate = require('./estimateModel');
+const Estimate = require('./estimateModel');
 
 describe('create Estimate', function() {
     it('should be invalid if user is empty', function(done) {
