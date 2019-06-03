@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const {spy,stub, assert, match} = require('sinon');
 
+const User = require('../User/userModel');
 const Story = require('./storyModel');
 const Estimate = require('./estimateModel');
 
@@ -101,12 +102,12 @@ describe('Story Controller', () => {
         let expectedUser, mockStoryFind, mockStoryUpdate, mockEstimateFindByUser, mockUserById, mockEstimateSave, mockEstimateFindOneAndUpdate;
 
         beforeEach(() => {
-            mockStoryFind = sinon.stub(Story, 'findById');
-            mockStoryUpdate = sinon.stub(Story, 'findOneAndUpdate');
-            mockEstimateFindByUser = sinon.stub(Estimate, 'findOne');
-            mockUserById = sinon.stub(User, 'findById');
-            mockEstimateSave = sinon.stub(Estimate.prototype, 'save');
-            mockEstimateFindOneAndUpdate = sinon.stub(Estimate, 'findOneAndUpdate');
+            mockStoryFind = stub(Story, 'findById');
+            mockStoryUpdate = stub(Story, 'findOneAndUpdate');
+            mockEstimateFindByUser = stub(Estimate, 'findOne');
+            mockUserById = stub(User, 'findById');
+            mockEstimateSave = stub(Estimate.prototype, 'save');
+            mockEstimateFindOneAndUpdate = stub(Estimate, 'findOneAndUpdate');
         });
 
         afterEach(() => {
@@ -125,7 +126,7 @@ describe('Story Controller', () => {
 
             await fixture.update_story(req, res);
 
-            sinon.assert.calledWith(res.json, expectedUser);
+            assert.calledWith(res.json, expectedUser);
         });
 
         it('should throw error with incorrect id', async () => {
@@ -136,7 +137,7 @@ describe('Story Controller', () => {
 
             await fixture.update_story(req, res);
 
-            sinon.assert.calledWith(res.json, expectedUser);
+            assert.calledWith(res.json, expectedUser);
         });
 
         it('should create new estimate when no estimate is existing for current user', async () => {
@@ -162,9 +163,9 @@ describe('Story Controller', () => {
 
             await fixture.update_story(req, res);
 
-            sinon.assert.calledWith(mockEstimateSave);
-            sinon.assert.calledWith(Story.findOneAndUpdate, { _id: storyId }, { $addToSet: { estimates: expectedEstimate } });
-            sinon.assert.calledWith(res.json, sinon.match({ message: 'Estimate successfully updated' } ));
+            assert.calledWith(mockEstimateSave);
+            assert.calledWith(Story.findOneAndUpdate, { _id: storyId }, { $addToSet: { estimates: expectedEstimate } });
+            assert.calledWith(res.json, match({ message: 'Estimate successfully updated' } ));
         });
 
         it('should update existing estimate for current user', async () => {
@@ -194,8 +195,8 @@ describe('Story Controller', () => {
 
             await fixture.update_story(req, res);
 
-            sinon.assert.calledWith(Estimate.findOneAndUpdate, { _id: estimateId }, expectedEstimate);
-            sinon.assert.calledWith(res.json, sinon.match({ message: 'Estimate successfully updated' } ));
+            assert.calledWith(Estimate.findOneAndUpdate, { _id: estimateId }, expectedEstimate);
+            assert.calledWith(res.json, match({ message: 'Estimate successfully updated' } ));
         });
 
         it('should throw error if update estimate fails', async () => {
@@ -209,7 +210,7 @@ describe('Story Controller', () => {
 
             await fixture.update_story(req, res);
 
-            sinon.assert.calledWith(res.send, sinon.match(error));
+            assert.calledWith(res.send, match(error));
 
         });
 
