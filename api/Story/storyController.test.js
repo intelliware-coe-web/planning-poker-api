@@ -13,6 +13,10 @@ describe('Story Controller', () => {
         error = new Error({ error: "blah blah" }),
         res = {};
 
+    const storyId = '123';
+    const estimateId = '456';
+    const userId = '789';
+
     beforeEach(() => {
         res = {
             json: sinon.spy(),
@@ -22,7 +26,6 @@ describe('Story Controller', () => {
     });
 
     describe('get story by id', () => {
-        const storyId = '123456789';
         let expectedResult, mockStoryFind;
 
         beforeEach(() => {
@@ -59,7 +62,6 @@ describe('Story Controller', () => {
 
 
     describe('get estimate by id', () => {
-        const estimateId = '123456789';
         let expectedResult, mockEstimateFind;
 
         beforeEach(() => {
@@ -92,6 +94,124 @@ describe('Story Controller', () => {
             sinon.assert.calledWith(Estimate.findById, estimateId);
             sinon.assert.calledWith(res.send, sinon.match(error));
         });
+    });
+
+    describe('update estimate ',() => {
+        let expectedUser, mockStoryFind, mockStoryUpdate, mockEstimateFindByUser, mockUserById, mockEstimateSave, mockEstimateFindOneAndUpdate;
+
+        beforeEach(() => {
+            mockStoryFind = sinon.stub(Story, 'findById');
+            mockStoryUpdate = sinon.stub(Story, 'findOneAndUpdate');
+            mockEstimateFindByUser = sinon.stub(Estimate, 'findOne');
+            mockUserById = sinon.stub(User, 'findById');
+            mockEstimateSave = sinon.stub(Estimate.prototype, 'save');
+            mockEstimateFindOneAndUpdate = sinon.stub(Estimate, 'findOneAndUpdate');
+        });
+
+        afterEach(() => {
+            mockStoryFind.restore();
+            mockStoryUpdate.restore();
+            mockEstimateFindByUser.restore();
+            mockUserById.restore();
+            mockEstimateSave.restore();
+            mockEstimateFindOneAndUpdate.restore();
+        });
+
+        it('should throw error with no id', async () => {
+            expectedUser = { message: 'No user id' };
+
+            _.set(req, 'body.id', null);
+
+            await fixture.update_story(req, res);
+
+            sinon.assert.calledWith(res.json, expectedUser);
+        });
+
+        it('should throw error with incorrect id', async () => {
+            expectedUser = { message: 'No user found with that id' };
+
+            mockUserById.throws(error);
+            _.set(req, 'body.id', '00000');
+
+            await fixture.update_story(req, res);
+
+            sinon.assert.calledWith(res.json, expectedUser);
+        });
+
+        it('should create new estimate when no estimate is existing for current user', async () => {
+            expectedUser = {
+                _id: userId,
+                name: 'mockedUser'
+            };
+
+            mockUserById.returns(expectedUser);
+            mockEstimateFindByUser.returns(null);
+
+            const expectedEstimate = {
+                _id: '123456789',
+                estimate: '8'
+            };
+
+            mockEstimateSave.returns(expectedEstimate);
+            mockEstimateFindOneAndUpdate.returns({});
+            _.set(req, 'body.id', userId);
+            _.set(req, 'body.estimate', '8');
+            _.set(req, 'params.storyId', storyId);
+
+
+            await fixture.update_story(req, res);
+
+            sinon.assert.calledWith(mockEstimateSave);
+            sinon.assert.calledWith(Story.findOneAndUpdate, { _id: storyId }, { $addToSet: { estimates: expectedEstimate } });
+            sinon.assert.calledWith(res.json, sinon.match({ message: 'Estimate successfully updated' } ));
+        });
+
+        it('should update existing estimate for current user', async () => {
+            expectedUser = {
+                _id: userId,
+                name: 'mockedUser'
+            };
+
+            const initialEstimate = {
+                _id: estimateId,
+                user: expectedUser,
+                estimate: '8'
+            };
+
+            const expectedEstimate = {
+                _id: estimateId,
+                user: expectedUser,
+                estimate: '13'
+            };
+
+            mockUserById.returns(expectedUser);
+            mockEstimateFindByUser.returns(initialEstimate);
+            mockEstimateFindOneAndUpdate.returns(expectedEstimate);
+
+            _.set(req, 'body.id', userId);
+            _.set(req, 'body.estimate', '13');
+
+            await fixture.update_story(req, res);
+
+            sinon.assert.calledWith(Estimate.findOneAndUpdate, { _id: estimateId }, expectedEstimate);
+            sinon.assert.calledWith(res.json, sinon.match({ message: 'Estimate successfully updated' } ));
+        });
+
+        it('should throw error if update estimate fails', async () => {
+            expectedUser = {
+                _id: userId,
+                name: 'mockedUser'
+            };
+
+            mockUserById.returns(expectedUser);
+            mockEstimateFindByUser.throws(error);
+
+            await fixture.update_story(req, res);
+
+            sinon.assert.calledWith(res.send, sinon.match(error));
+
+        });
+
     });
 });
 

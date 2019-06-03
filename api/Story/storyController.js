@@ -52,18 +52,15 @@ exports.update_story = async (req, res) => {
       return res.json({ message: 'No user found with that id' });
   }
 
-
   let existingEstimate;
   try{
       existingEstimate = await Estimate.findOne({'user': user});
-
       if(existingEstimate === null) {
-          let new_estimate = new Estimate({"user": user, "estimate": req.body.estimate});
-          await new_estimate.save();
+          const new_estimate = await (new Estimate({"user": user, "estimate": req.body.estimate}).save());
           await Story.findOneAndUpdate({ _id: req.params.storyId }, { $addToSet: { estimates: new_estimate } })
       } else {
           existingEstimate.estimate = req.body.estimate;
-          await existingEstimate.save()
+          await Estimate.findOneAndUpdate({ _id: existingEstimate._id }, existingEstimate);
       }
       return res.json({ message: 'Estimate successfully updated' });
   }
