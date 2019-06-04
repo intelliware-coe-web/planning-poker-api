@@ -10,6 +10,11 @@ let StorySchema = new Schema({
     description: {
         type: String
     },
+    meeting: {
+        type: Schema.Types.ObjectId,
+        ref: 'Meeting',
+        required: 'Story must have a meeting'
+    },
     created_date: {
         type: Date,
         default: Date.now

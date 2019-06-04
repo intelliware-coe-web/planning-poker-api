@@ -18,7 +18,7 @@ exports.update_estimate = async (req, res) => {
         let story = await Story.findById({_id: storyId});
 
         let estimate = req.body.estimate;
-        if(!estimate) {
+        if (!estimate) {
             return res.json({ message: 'No estimate given' });
         }
 
