@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {spy,stub, assert, match} = require('sinon');
+const {spy,stub, assert, match, mock} = require('sinon');
 
 const User = require('../User/userModel');
 const Meeting = require('./meetingModel');
@@ -46,6 +46,135 @@ describe('Meeting Controller', () => {
             await fixture.list_meetings(req, res);
 
             assert.calledWith(Meeting.find);
+            assert.calledWith(res.send, match(error));
+        });
+    });
+
+    describe('create_meeting', () => {
+        let expectedResult, mockMeeting;
+    
+        beforeEach(() => {
+            mockMeeting = stub(Meeting.prototype, 'save');
+        });
+    
+        afterEach(() => {
+            Meeting.prototype.save.restore();
+        });
+    
+        it('should return a new meeting', async () => {
+            _.set(req, 'body.name', 'Meeting Name');
+            expectedResult = { name: 'Meeting Name' };
+            mockMeeting.returns(expectedResult);
+    
+            await fixture.create_meeting(req, res);
+
+            assert.called(Meeting.prototype.save);
+            assert.calledWith(res.json, match(expectedResult));
+            
+        });
+    
+        it('should return error if there is a server error', async () => {
+            mockMeeting.throws(error);
+
+            await fixture.create_meeting(req, res);
+
+            assert.calledWith(Meeting.prototype.save);
+            assert.calledWith(res.send, match(error));
+        });
+    });
+
+    describe('get_meeting', () => {
+        let expectedResult, mockMeetingFindById;
+    
+        beforeEach(() => {
+            mockMeetingFindById = stub(Meeting, 'findById');
+        });
+    
+        afterEach(() => {
+            mockMeetingFindById.restore();
+        });
+    
+        it('should return a meeting', async () => {
+            _.set(req, 'params.meetingId', 'abc');
+            expectedResult = { name: 'Meeting Name' };
+            mockMeetingFindById.returns(expectedResult);
+    
+            await fixture.get_meeting(req, res);
+
+            assert.calledWith(Meeting.findById, 'abc');
+            assert.calledWith(res.json, match(expectedResult));
+            
+        });
+    
+        it('should return error if there is a server error', async () => {
+            mockMeetingFindById.throws(error);
+
+            await fixture.get_meeting(req, res);
+
+            assert.called(Meeting.findById);
+            assert.calledWith(res.send, match(error));
+        });
+    });
+
+    describe('delete_meeting', () => {
+        let expectedResult, mockMeetingRemove;
+    
+        beforeEach(() => {
+            mockMeetingRemove = stub(Meeting, 'remove');
+        });
+    
+        afterEach(() => {
+            mockMeetingRemove.restore();
+        });
+    
+        it('should call delete', async () => {
+            _.set(req, 'params.meetingId', 'abc');
+            await fixture.delete_meeting(req, res);
+
+            assert.calledWith(Meeting.remove, {_id: 'abc'});
+            assert.calledWith(res.json, match({message: 'Meeting successfully deleted'}));
+            
+        });
+    
+        it('should return error if there is a server error', async () => {
+            mockMeetingRemove.throws(error);
+
+            await fixture.delete_meeting(req, res);
+
+            assert.called(Meeting.remove);
+            assert.calledWith(res.send, match(error));
+        });
+    });
+
+    describe('list_attendees', () => {
+        let expectedResult, mockMeetingFindById;
+    
+        beforeEach(() => {
+            mockMeetingFindById = stub(Meeting, 'findById');
+        });
+    
+        afterEach(() => {
+            mockMeetingFindById.restore();
+        });
+    
+        it('should return list of attendees', async () => {
+            _.set(req, 'params.meetingId', 'abc');
+            expectedResult = { name: 'Meeting Name', attendees: [] };
+            mockMeetingFindById.returns(expectedResult);
+    
+            await fixture.list_attendees(req, res);
+
+            assert.calledWith(Meeting.findById, 'abc');
+            assert.calledWith(res.json, match([]));
+            
+        });
+    
+        it('should return error if there is a server error', async () => {
+            mockMeetingFindById.throws(error);
+
+            await fixture.list_attendees(req, res);
+
+            assert.called(Meeting.findById);
             assert.calledWith(res.send, match(error));
         });
     });
@@ -100,6 +229,6 @@ describe('Meeting Controller', () => {
             assert.calledWith(User.findById, {_id: userId});
             assert.calledWith(res.json, match({ message: 'No user found with that id' }));            
         });
-    });
+    });    
 });
 
