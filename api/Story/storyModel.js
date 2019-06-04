@@ -10,10 +10,6 @@ let StorySchema = new Schema({
     description: {
         type: String
     },
-    estimates: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Estimate'
-    }],
     created_date: {
         type: Date,
         default: Date.now

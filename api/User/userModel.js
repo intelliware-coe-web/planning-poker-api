@@ -8,7 +8,7 @@ let UserSchema = new Schema({
     type: String,
     required: 'You need a name to exist'
   },
-  Created_date: {
+  created_date: {
     type: Date,
     default: Date.now
   }  

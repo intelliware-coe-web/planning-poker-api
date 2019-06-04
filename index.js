@@ -13,7 +13,7 @@ let express = require('express'),
 let User = require('./api/User/userModel'), 
   Meeting = require('./api/Meeting/meetingModel'), 
   Story = require('./api/Story/storyModel'),
-  Estimate = require('./api/Story/estimateModel');
+  Estimate = require('./api/Estimate/estimateModel');
 
 // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
@@ -36,10 +36,12 @@ app.use(bodyParser.json());
 // Register the routes
 let meetingRoutes = require('./api/Meeting/meetingRoutes'),
     storyRoutes = require('./api/Story/storyRoutes'),
-    userRoutes = require('./api/User/userRoutes');
+    userRoutes = require('./api/User/userRoutes'),
+    estimateRoutes = require('./api/Estimate/estimateRoutes');
 meetingRoutes(app);
 storyRoutes(app);
-userRoutes(app); 
+userRoutes(app);
+estimateRoutes(app);
 
 app.listen(port, () => {
   console.log('Planning Poker API server started on: ' + port);
