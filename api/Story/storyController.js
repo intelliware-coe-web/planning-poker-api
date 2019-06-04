@@ -1,8 +1,6 @@
 const mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
-Story = mongoose.model('Story'),
-Estimate = mongoose.model('Estimate'),
-User = mongoose.model('User');
+Story = mongoose.model('Story');
 
 exports.list_stories = async (req, res) => {
   try {
@@ -37,45 +35,6 @@ exports.create_story = async (req, res) => {
   } catch (err) {
     return sendError(res, err);
   }
-};
-
-exports.update_story = async (req, res) => {
-  const userId = req.body.id;
-  if (!userId) {
-      return res.json({ message: 'No user id' });
-  }
-
-  let user;
-  try {
-      user = await User.findById({_id: userId});
-  } catch (err) {
-      return res.json({ message: 'No user found with that id' });
-  }
-
-  let existingEstimate;
-  try{
-      existingEstimate = await Estimate.findOne({'user': user});
-      if(existingEstimate === null) {
-          const new_estimate = await (new Estimate({"user": user, "estimate": req.body.estimate}).save());
-          await Story.findOneAndUpdate({ _id: req.params.storyId }, { $addToSet: { estimates: new_estimate } })
-      } else {
-          existingEstimate.estimate = req.body.estimate;
-          await Estimate.findOneAndUpdate({ _id: existingEstimate._id }, existingEstimate);
-      }
-      return res.json({ message: 'Estimate successfully updated' });
-  }
-  catch(err){
-      return sendError(res, err);
-  }
-};
-
-exports.get_estimate = async (req, res) => {
-    try {
-        const estimate = await Estimate.findById(req.params.estimateId);
-        return res.json(estimate);
-    } catch(err) {
-        return sendError(res, err);
-    }
 };
 
 exports.get_story = async (req, res) => {

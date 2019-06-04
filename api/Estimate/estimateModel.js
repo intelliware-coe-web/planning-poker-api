@@ -8,6 +8,11 @@ let EstimateSchema = new Schema({
         ref: 'User',
         required: 'You need a user'
     },
+    story: {
+        type: Schema.Types.ObjectId,
+        ref: 'Story',
+        required: 'You must estimate a story'
+    },
     estimate: {
         type: Number
     },
