@@ -106,4 +106,120 @@ describe('Estimate Controller', ()=> {
             send.calledWith(match(error));
         });
     });
+
+    describe('Get Estimates By Story Id', () => {
+        let expectedResponse;
+        let mockEstimateFind;
+        const storyId = '123';
+
+        beforeEach(() => {
+            mockEstimateFind = stub(Estimate, 'find');
+        });
+
+        afterEach(() => {
+            mockEstimateFind.restore();
+        });
+
+        it('should return estimate list with for given story id', async () => {
+            expectedResponse = [ {_id: 'id1', user: {}, story: {_id: '123'}, estimate: 3},
+                                 {_id: 'id2', user: {}, story: {_id: '123'}, estimate: 5} ];
+
+            _.set(req, 'params.storyId', storyId);
+
+            mockEstimateFind.returns(expectedResponse);
+
+            await fixture.get_estimates_by_storyId(req, res);
+
+            assert.calledWith(mockEstimateFind, {story: { _id: storyId } });
+            assert.calledWith(res.json, expectedResponse);
+        });
+
+
+        it('should return error if there is a server error', async () => {
+            mockEstimateFind.throws(error);
+
+            _.set(req, 'params.storyId', storyId);
+            await fixture.get_estimates_by_storyId(req, res);
+
+            assert.calledWith(mockEstimateFind, {story: { _id: storyId } });
+            status.calledWith(500);
+            send.calledWith(match(error));
+        });
+    });
+
+    describe('List Estimates', () => {
+        let expectedResponse;
+        let mockEstimateFind;
+
+        beforeEach(() => {
+            mockEstimateFind = stub(Estimate, 'find');
+        });
+
+        afterEach(() => {
+            mockEstimateFind.restore();
+        });
+
+        it('should return list of estimates', async () => {
+            expectedResponse = [ {_id: 'id1', user: {}, story: {_id: '123'}, estimate: 3},
+                                 {_id: 'id2', user: {}, story: {_id: '123'}, estimate: 5} ];
+
+            mockEstimateFind.returns(expectedResponse);
+
+            await fixture.list_estimates(req, res);
+
+            assert.calledOnce(mockEstimateFind);
+            assert.calledWith(res.json, expectedResponse);
+        });
+
+
+        it('should return error if there is a server error', async () => {
+            mockEstimateFind.throws(error);
+
+            await fixture.list_estimates(req, res);
+
+            assert.calledOnce(mockEstimateFind);
+            status.calledWith(500);
+            send.calledWith(match(error));
+        });
+    });
+
+    describe('Delete Estimate', () => {
+        let expectedResponse;
+        let mockEstimateDeleteOne;
+        const estimateId = '123';
+
+        beforeEach(() => {
+            mockEstimateDeleteOne = stub(Estimate, 'deleteOne');
+        });
+
+        afterEach(() => {
+            mockEstimateDeleteOne.restore();
+        });
+
+        it('should delete an estimate ', async () => {
+            expectedResponse = {message: 'Estimate successfully deleted'};
+
+            mockEstimateDeleteOne.returns({});
+
+            _.set(req, 'params.estimateId', estimateId);
+
+            await fixture.delete_estimate(req, res);
+
+            assert.calledWith(mockEstimateDeleteOne, {_id: estimateId});
+            assert.calledWith(res.json, expectedResponse);
+        });
+
+
+        it('should return error if there is a server error', async () => {
+            mockEstimateDeleteOne.throws(error);
+            _.set(req, 'params.estimateId', estimateId);
+
+            await fixture.delete_estimate(req, res);
+
+            assert.calledWith(mockEstimateDeleteOne, {_id: estimateId});
+            status.calledWith(500);
+            send.calledWith(match(error));
+        });
+    });
+
 });
