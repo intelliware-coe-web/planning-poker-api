@@ -2,7 +2,7 @@ const _ = require('lodash');
 const {spy,stub, assert, match} = require('sinon');
 
 const Story = require('./storyModel');
-
+const Meeting = require('../Meeting/meetingModel');
 const fixture = require('./storyController');
 
 describe('Story Controller', () => {
@@ -127,6 +127,37 @@ describe('Story Controller', () => {
             assert.calledWith(mockStoryFind, {meeting: { _id: meetingId } });
             status.calledWith(500);
             send.calledWith(match(error));
+        });
+    });
+
+    describe('create story for meeting', () => {
+        const meetingId = 123;
+
+        beforeEach(() => {
+            mockMeetingFindById = stub(Meeting, 'findById');
+            mockStorySave = stub(Story.prototype, 'save');
+        });
+
+        afterEach(() => {
+            mockMeetingFindById.restore();
+            Story.prototype.save.restore();
+        });
+
+        it('should create story given meeting id', async () => {
+            const successMessage = {message: 'Story successfully created'};
+            const foundMeeting = {_id: meetingId, name: 'meeting a'};
+
+            _.set(req, 'body', {name: 'story a'});
+            _.set(req, 'params.meetingId', meetingId);
+
+            mockMeetingFindById.returns(foundMeeting);
+            mockStorySave.returns({name: 'story a', meeting: foundMeeting});
+
+            await fixture.create_story(req, res);
+
+            assert.calledWith(Story.prototype.save);
+            assert.calledWith(mockMeetingFindById, meetingId);
+            assert.calledWith(res.json, successMessage);
         });
     });
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose'),
+_ = require('underscore'),
 Meeting = mongoose.model('Meeting'),
 Story = mongoose.model('Story');
 
@@ -40,11 +41,24 @@ exports.delete_story = async (req, res) => {
 };
 
 exports.create_story = async (req, res) => {
+  const meetingId = req.params.meetingId;
+
+  if (!meetingId) {
+      return res.json({ message: 'No meeting id provided' });
+  }
+
+  let meeting = await Meeting.findById(meetingId);
+
+  if (!meeting) {
+      return res.json({ message: "No meeting found for that meeting id"})
+  }
+  req.body.meeting = meeting;
+
   let new_story = new Story(req.body);
 
   try {
     new_story = await new_story.save();
-    return res.json({ message: 'Story successfully added' });
+    return res.json({ message: 'Story successfully created'});
   } catch (err) {
     return sendError(res, err);
   }
