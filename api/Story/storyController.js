@@ -1,5 +1,4 @@
 const mongoose = require('mongoose'),
-_ = require('underscore'),
 Meeting = mongoose.model('Meeting'),
 Story = mongoose.model('Story');
 
