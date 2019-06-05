@@ -83,3 +83,27 @@ exports.add_attendee = async function(req, res) {
     return res.json({ message: 'Attendee successfully added' });
   }  
 };
+
+exports.list_meeting_stories = async (req, res) => {
+  try {
+    const meeting = await Meeting.findById(req.params.meetingId);
+    if (meeting == null) {
+      return res.json({message: "No meeting found for that id"});      
+    }
+    return res.json(meeting.stories);
+  } catch (err) {
+    return sendError(res, err);
+  }  
+};
+
+exports.create_story_for_meeting = async (req, res) => {
+  let new_story = new Story(req.body);
+
+  try {
+    new_story = await new_story.save();
+    await Meeting.findOneAndUpdate({ _id: req.params.meetingId },{ $addToSet: { stories: new_story } });
+    return res.json({ message: 'Story successfully added' });
+  } catch (err) {
+    return sendError(res, err);
+  }
+};

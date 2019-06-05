@@ -10,10 +10,19 @@ let StorySchema = new Schema({
     description: {
         type: String
     },
+    estimates: [{
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        estimate: {
+            type: Number
+        }
+    }],
     created_date: {
         type: Date,
         default: Date.now
-    } 
+    }
 });
 
 module.exports = mongoose.model('Story', StorySchema);
