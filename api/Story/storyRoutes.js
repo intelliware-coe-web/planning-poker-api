@@ -9,10 +9,10 @@ module.exports = (app) => {
     .get(controller.get_story)
     .delete(controller.delete_story);
 
-  app.route('/stories/:storyId/estimate')
+  app.route('/stories/:storyId/estimates')
     .get(controller.list_story_estimates)
     .post(controller.create_story_estimate);
 
-  app.route('/stories/:storyId/estimate/:estimateId')
+  app.route('/stories/:storyId/estimates/:estimateId')
     .delete(controller.delete_story_estimate);
 }

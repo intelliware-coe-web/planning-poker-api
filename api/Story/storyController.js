@@ -59,7 +59,7 @@ exports.create_story_estimate = async (req, res) => {
   const userId = req.body.userId;
   const estimate = req.body.estimate;
 
-  const previousStoryEstimate = await Story.findOne({'estimates.user': userId});
+  const previousStoryEstimate = await Story.findOne({_id: storyId, 'estimates.user': userId});
 
   try {
     if (previousStoryEstimate) {
@@ -69,8 +69,10 @@ exports.create_story_estimate = async (req, res) => {
       );      
       return res.json({ message: 'Existing estimate successfully updated'});
     }
+
     await Story.findOneAndUpdate({ _id: storyId },{ $addToSet: { estimates: req.body } });
     return res.json({ message: 'Estimate successfully added to story' });
+
   } catch (err) {
     return sendError(res, err);
   }
