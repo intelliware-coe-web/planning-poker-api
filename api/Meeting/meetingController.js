@@ -1,6 +1,7 @@
 const mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
-User = mongoose.model('User');
+User = mongoose.model('User'),
+Story = mongoose.model('Story');
 
 exports.list_meetings = async (req, res) => {
   try {
@@ -82,4 +83,36 @@ exports.add_attendee = async function(req, res) {
   if (meeting){
     return res.json({ message: 'Attendee successfully added' });
   }  
+};
+
+exports.get_meeting_stories = async (req, res) => {
+  let meeting = await Meeting.findById(req.params.meetingId);
+
+  if (!meeting) {
+      return res.json({ message: "No meeting found for that meeting id"});
+  }
+
+  try {
+    const stories = meeting.stories;
+    return res.json(stories);
+  } catch (err) {
+    return sendError(res, err);
+  }  
+};
+
+exports.add_story_to_meeting = async (req, res) => {
+  const meeting = await Meeting.findById(req.params.meetingId);
+
+  if (!meeting) {
+      return res.json({ message: "No meeting found for that meeting id"})
+  }
+  
+  const new_story = new Story(req.body);
+  meeting.stories.push(new_story);
+  try {
+    await meeting.save();
+    return res.json({ message: 'Story successfully added to meeting'});
+  } catch (err) {
+    return sendError(res, err);
+  }
 };

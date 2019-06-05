@@ -1,6 +1,7 @@
 'use strict';
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
+let Story = require('../Story/storyModel');
 
 let MeetingSchema = new Schema({
     name: {
@@ -12,25 +13,7 @@ let MeetingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
-    stories: [{
-        name: {
-            type: String,
-            required: 'Name is required'
-        },
-        description: {
-            type: String
-        },
-        estimates: [{
-            user: {
-                type: Schema.Types.ObjectId,
-                ref: 'User',
-                required: 'You need a user'
-            },
-            estimate: {
-                type: Number
-            }
-        }]
-    }],
+    stories: [Story.schema],
     created_date: {
         type: Date,
         default: Date.now
