@@ -17,7 +17,7 @@ exports.delete_story = async (req, res) => {
     await Meeting.findOneAndUpdate({ _id: req.params.meetingId }, { $pullAll: {stories: [storyId]}});
     await Story.remove({_id: storyId});
     return res.json({message: 'Story successfully removed'});
-  } catch (err){
+  } catch (err) {
     return sendError(res, err);
   }
 };
@@ -63,29 +63,18 @@ exports.create_story_estimate = async (req, res) => {
 
   try {
     if (previousStoryEstimate) {
-      await UpdateExistingEstimate(storyId, userId, estimate);
+      await Story.update(
+        { _id: storyId, "estimates.user": userId}, 
+        { $set: { "estimates.$.estimate": estimate } }
+      );      
+      return res.json({ message: 'Existing estimate successfully updated'});
     }
-    await CreateNewEstimate(req.body);
-
+    await Story.findOneAndUpdate({ _id: storyId },{ $addToSet: { estimates: req.body } });
+    return res.json({ message: 'Estimate successfully added to story' });
   } catch (err) {
     return sendError(res, err);
   }
 };
-
-async function UpdateExistingEstimate(storyId, userId, estimate) {
-  await Story.update(
-    { _id: storyId, "estimates.user": userId}, 
-    { $set: { "estimates.$.estimate": estimate } }
-  );
-  return res.json({ message: 'Existing estimate successfully updated'});
-}
-
-async function CreateNewEstimate(estimateBody, storyId) {
-  const new_estimate = new estimate(estimateBody);
-  new_estimate = await new_estimate.save();
-  await Story.findOneAndUpdate({ _id: storyId },{ $addToSet: { estimates: new_estimate } });
-  return res.json({ message: 'Estimate successfully added to story' });
-}
 
 // TODO: should we pull this out into something generic?
 function sendError(res, err) {
