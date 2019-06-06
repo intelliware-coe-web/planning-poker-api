@@ -86,7 +86,7 @@ exports.add_attendee = async function(req, res) {
 
 exports.get_current_story = async (req, res) => {
     try {
-        const meeting = await Meeting.findById(req.params.meetingId);
+        let meeting = await Meeting.findById(req.params.meetingId).populate('current_story', 'name description');
         return res.json(meeting.current_story);
     } catch(err) {
         return sendError(res, err);

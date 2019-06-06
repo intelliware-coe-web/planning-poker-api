@@ -20,6 +20,7 @@ describe('Meeting Controller', () => {
 
         status.returns(res);
     });
+
     describe('list meetings', () => {
         let expectedResult, mockMeetingFind;
     
@@ -239,8 +240,7 @@ describe('Meeting Controller', () => {
 
         describe('get', () => {
             let expectedResult;
-            let mockMeetingFindById;
-
+            let mockMeetingFindById, mockMeetingFindOneResult;
 
             before(() => {
                 mockMeetingFindById = stub(Meeting, 'findById');
@@ -251,20 +251,25 @@ describe('Meeting Controller', () => {
             });
 
             it('should return current story', async () => {
-                expectedResult = storyId;
-                let meeting = {
+                let expectedCurrentStory = {
+                    _id: storyId,
+                    name: 'Mock Story Name',
+                    description: 'Mock Story Description'
+                };
+                let meetingWithPopulate = {
                     _id: meetingId,
-                    current_story: storyId
+                    current_story: expectedCurrentStory
                 };
 
                 _.set(req, 'params.meetingId', meetingId);
 
-                mockMeetingFindById.returns(meeting);
+                mockMeetingFindOneResult = { populate: stub().returns(meetingWithPopulate) };
+                mockMeetingFindById.returns(mockMeetingFindOneResult);
 
                 await fixture.get_current_story(req, res);
 
                 assert.calledWith(mockMeetingFindById, meetingId);
-                assert.calledWith(res.json, expectedResult);
+                assert.calledWith(res.json, expectedCurrentStory);
             });
 
             it('should return error if there is a server error', async () => {
@@ -279,6 +284,7 @@ describe('Meeting Controller', () => {
             });
 
         });
+
         describe('update', () => {
             let expectedResult;
             let mockMeetingUpdateOne;
