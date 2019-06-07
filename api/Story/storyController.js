@@ -1,5 +1,4 @@
 const mongoose = require('mongoose'),
-Meeting = mongoose.model('Meeting'),
 Story = mongoose.model('Story');
 
 exports.list_stories = async (req, res) => {
