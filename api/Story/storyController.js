@@ -12,18 +12,11 @@ exports.list_stories = async (req, res) => {
 };
 
 exports.create_story = async (req, res) => {
-  const meetingId = req.query.meetingId;
-
-  const meeting = await Meeting.findById(meetingId);
-
-  if (!meeting) {
-    return res.json({ message: 'Meeting not found'});
-  }
-  let new_story = new Story(req.body);
-  new_story.meetingId = meetingId;
-
   try {
+    let new_story = new Story({ name: req.body.name, description: req.body.description, meetingId: req.query.meetingId});
+    await new_story.validate();
     await new_story.save();
+
     return res.json({ message: 'Story successfully created' });
   } catch (err) {
     return sendError(res, err);
@@ -41,7 +34,7 @@ exports.get_story = async (req, res) => {
 
 exports.get_stories_by_meetingId = async (req, res) => {
   try {
-      const stories = await Story.find({meeting: { _id: req.query.meetingId } });
+      const stories = await Story.find({meetingId: req.query.meetingId});
       return res.json(stories);
   } catch (err) {
       return sendError(res, err);
