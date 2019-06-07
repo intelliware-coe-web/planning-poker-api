@@ -21,15 +21,12 @@ exports.create_story = async (req, res) => {
   if (!meeting) {
     return res.json({ message: 'Meeting not found'});
   }
-  const new_story = new Story(req.body);
+  let new_story = new Story(req.body);
   new_story.meetingId = meetingId;
-  console.log(new_story);
-  console.log(new_story.meetingId);
 
   try {
-    new_story = await new_story.save();
-    console.log(new_story);
-    return res.json({ message: 'Story successfully added' });
+    await new_story.save();
+    return res.json({ message: 'Story successfully created' });
   } catch (err) {
     return sendError(res, err);
   }

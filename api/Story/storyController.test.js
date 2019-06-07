@@ -132,6 +132,7 @@ describe('Story Controller', () => {
 
     describe('create story', () => {
         const meetingId = 123;
+        let mockMeetingFindById, mockStorySave;
 
         beforeEach(() => {
             mockMeetingFindById = stub(Meeting, 'findById');
@@ -140,7 +141,7 @@ describe('Story Controller', () => {
 
         afterEach(() => {
             mockMeetingFindById.restore();
-            Story.prototype.save.restore();
+            mockStorySave.restore();
         });
 
         it('should create story given meeting id', async () => {
@@ -155,7 +156,7 @@ describe('Story Controller', () => {
 
             await fixture.create_story(req, res);
 
-            assert.calledWith(Story.prototype.save);
+            assert.calledWith(mockStorySave);
             assert.calledWith(mockMeetingFindById, meetingId);
             assert.calledWith(res.json, successMessage);
         });
