@@ -9,4 +9,8 @@ module.exports = function(app) {
   app.route('/meetings/:meetingId')
     .get(controller.get_meeting)
     .delete(controller.delete_meeting);
+    
+  app.route('/meetings/:meetingId/currentStory')
+      .get(controller.get_current_story)
+      .put(controller.update_current_story)
 };
