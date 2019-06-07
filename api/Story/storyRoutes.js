@@ -2,10 +2,10 @@
 module.exports = (app) => {
   let controller = require('./storyController');
 
-  app.route('/stories')
+  app.route('/stories/listAll')
     .get(controller.list_stories);
 
-  app.route('/stories/')
+  app.route('/stories')
     .get(controller.get_stories_by_meetingId)
     .post(controller.create_story);
 

@@ -104,8 +104,8 @@ describe('Story Controller', () => {
         });
 
         it('should return story list for given meeting id', async () => {
-            expectedResponse = [ {_id: 'id1', name: 'story a', meeting: {_id: '123'}},
-                                 {_id: 'id2', name: 'story b', meeting: {_id: '123'}} ];
+            expectedResponse = [ {_id: 'id1', name: 'story a', meetingId: '123'},
+                                 {_id: 'id2', name: 'story b', meetingId: '123'} ];
 
             _.set(req, 'query.meetingId', meetingId);
 
@@ -113,7 +113,7 @@ describe('Story Controller', () => {
 
             await fixture.get_stories_by_meetingId(req, res);
 
-            assert.calledWith(mockStoryFind, {meeting: { _id: meetingId } });
+            assert.calledWith(mockStoryFind, {meetingId: meetingId });
             assert.calledWith(res.json, expectedResponse);
         });
 
@@ -124,7 +124,7 @@ describe('Story Controller', () => {
             _.set(req, 'query.meetingId', meetingId);
             await fixture.get_stories_by_meetingId(req, res);
 
-            assert.calledWith(mockStoryFind, {meeting: { _id: meetingId } });
+            assert.calledWith(mockStoryFind, {meetingId: meetingId});
             status.calledWith(500);
             send.calledWith(match(error));
         });

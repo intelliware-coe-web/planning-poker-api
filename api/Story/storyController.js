@@ -34,7 +34,7 @@ exports.get_story = async (req, res) => {
 
 exports.get_stories_by_meetingId = async (req, res) => {
   try {
-      const stories = await Story.find({meeting: { _id: req.query.meetingId } });
+      const stories = await Story.find({meetingId: req.query.meetingId});
       return res.json(stories);
   } catch (err) {
       return sendError(res, err);
