@@ -5,8 +5,7 @@ module.exports = (app) => {
   app.route('/stories')
     .get(controller.list_stories);
 
-  // change this to be /stories?meetingId=whatever
-  app.route('/stories/:meetingId')
+  app.route('/stories/')
     .get(controller.get_stories_by_meetingId)
     .post(controller.create_story);
 

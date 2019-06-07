@@ -107,7 +107,7 @@ describe('Story Controller', () => {
             expectedResponse = [ {_id: 'id1', name: 'story a', meeting: {_id: '123'}},
                                  {_id: 'id2', name: 'story b', meeting: {_id: '123'}} ];
 
-            _.set(req, 'params.meetingId', meetingId);
+            _.set(req, 'query.meetingId', meetingId);
 
             mockStoryFind.returns(expectedResponse);
 
@@ -121,7 +121,7 @@ describe('Story Controller', () => {
         it('should return error if there is a server error', async () => {
             mockStoryFind.throws(error);
 
-            _.set(req, 'params.meetingId', meetingId);
+            _.set(req, 'query.meetingId', meetingId);
             await fixture.get_stories_by_meetingId(req, res);
 
             assert.calledWith(mockStoryFind, {meeting: { _id: meetingId } });
@@ -148,7 +148,7 @@ describe('Story Controller', () => {
             const foundMeeting = {_id: meetingId, name: 'meeting a'};
 
             _.set(req, 'body', {name: 'story a'});
-            _.set(req, 'params.meetingId', meetingId);
+            _.set(req, 'query.meetingId', meetingId);
 
             mockMeetingFindById.returns(foundMeeting);
             mockStorySave.returns({name: 'story a', meeting: foundMeeting});

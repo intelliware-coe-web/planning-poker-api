@@ -11,10 +11,8 @@ exports.list_stories = async (req, res) => {
   }  
 };
 
-// TODO change this endpoint to be /stories?meetingId=234234
 exports.create_story = async (req, res) => {
-  // get meetingId query parameter instead
-  const meetingId = req.params.meetingId;
+  const meetingId = req.query.meetingId;
 
   const meeting = await Meeting.findById(meetingId);
 
@@ -46,9 +44,7 @@ exports.get_story = async (req, res) => {
 
 exports.get_stories_by_meetingId = async (req, res) => {
   try {
-      // TODO change meetingId to be query param instead of part of the url
-      // /stories?meetingId=234234
-      const stories = await Story.find({meeting: { _id: req.params.meetingId } });
+      const stories = await Story.find({meeting: { _id: req.query.meetingId } });
       return res.json(stories);
   } catch (err) {
       return sendError(res, err);
