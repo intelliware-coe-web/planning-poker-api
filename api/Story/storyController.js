@@ -80,9 +80,9 @@ exports.list_story_estimates = async (req, res) => {
 };
 
 exports.delete_story_estimate = async (req, res) => {
-  const storyId = req.params.storyId;
-  const estimateId = req.params.estimateId;
   try {
+    const storyId = req.params.storyId;
+    const estimateId = req.params.estimateId;
     await Story.findOneAndUpdate({ _id: storyId }, { $pullAll: {estimates: [estimateId]}});
     return res.json({message: 'Estimate successfully removed'});
   } catch (err){
@@ -91,13 +91,13 @@ exports.delete_story_estimate = async (req, res) => {
 };
 
 exports.create_story_estimate = async (req, res) => {
-  const storyId = req.params.storyId;
-  const userId = req.body.userId;
-  const estimate = req.body.estimate;
-
-  const previousStoryEstimate = await Story.findOne({_id: storyId, 'estimates.user': userId});
-
   try {
+    const storyId = req.params.storyId;
+    const userId = req.body.userId;
+    const estimate = req.body.estimate;
+
+    const previousStoryEstimate = await Story.findOne({_id: storyId, 'estimates.user': userId});
+
     if (previousStoryEstimate) {
       await Story.update(
         { _id: storyId, "estimates.user": userId}, 
@@ -108,7 +108,6 @@ exports.create_story_estimate = async (req, res) => {
 
     await Story.findOneAndUpdate({ _id: storyId },{ $addToSet: { estimates: req.body } });
     return res.json({ message: 'Estimate successfully added to story' });
-
   } catch (err) {
     return sendError(res, err);
   }
