@@ -16,7 +16,7 @@ describe('Story Model', function() {
 
     it('should be invalid if name is empty', function(done) {
         let meeting = new Meeting({name: 'mockmeetingtest'});
-        let story = new Story({meetingId: meeting});
+        let story = new Story({meetingId: meeting._id});
 
         story.validate(function(err) {
             expect(err.errors.name).to.exist;
@@ -37,7 +37,7 @@ describe('Story Model', function() {
 
     it('should be valid if name and meetingId are present', function(done) {
         let meeting = new Meeting({name: 'mockmeetingtest2'});
-        let story = new Story({name: 'MockStoryName', meetingId: meeting});
+        let story = new Story({name: 'MockStoryName', meetingId: meeting._id});
 
         story.validate(function(err) {
             expect(err).to.null;

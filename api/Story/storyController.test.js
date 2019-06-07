@@ -131,34 +131,45 @@ describe('Story Controller', () => {
     });
 
     describe('create story', () => {
-        const meetingId = 123;
-        let mockMeetingFindById, mockStorySave;
+        let mockStorySave, mockStoryValidate;
 
         beforeEach(() => {
-            mockMeetingFindById = stub(Meeting, 'findById');
             mockStorySave = stub(Story.prototype, 'save');
+            mockStoryValidate = stub(Story.prototype, 'validate');
         });
 
         afterEach(() => {
-            mockMeetingFindById.restore();
             mockStorySave.restore();
+            mockStoryValidate.restore();
         });
 
         it('should create story given meeting id', async () => {
             const successMessage = {message: 'Story successfully created'};
-            const foundMeeting = {_id: meetingId, name: 'meeting a'};
+            const meetingId = 123456;
 
             _.set(req, 'body', {name: 'story a'});
             _.set(req, 'query.meetingId', meetingId);
 
-            mockMeetingFindById.returns(foundMeeting);
-            mockStorySave.returns({name: 'story a', meeting: foundMeeting});
+            await fixture.create_story(req, res);
+
+            mockStoryValidate.returns({});
+
+            assert.calledWith(mockStorySave);
+            assert.calledWith(res.json, successMessage);
+        });
+
+        it('should fail validation given non existent meeting id', async () => {
+            const meetingId = null;
+
+            _.set(req, 'body', {name: 'story a'});
+            _.set(req, 'query.meetingId', meetingId);
 
             await fixture.create_story(req, res);
 
-            assert.calledWith(mockStorySave);
-            assert.calledWith(mockMeetingFindById, meetingId);
-            assert.calledWith(res.json, successMessage);
+            mockStoryValidate.throws(error);
+
+            status.calledWith(500);
+            send.calledWith(match(error));
         });
     });
 
