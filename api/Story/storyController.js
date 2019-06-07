@@ -11,11 +11,28 @@ exports.list_stories = async (req, res) => {
   }  
 };
 
-exports.delete_story = async (req, res) => {
-  const storyId = req.body.id;
+exports.get_story = async (req, res) => {
   try {
-    await Meeting.findOneAndUpdate({ _id: req.params.meetingId }, { $pullAll: {stories: [storyId]}});
-    await Story.remove({_id: storyId});
+      const story = await Story.findById(req.params.storyId);
+      return res.json(story);
+  } catch(err) {
+      return sendError(res, err);
+  }
+};
+
+exports.get_stories_by_meetingId = async (req, res) => {
+  try {
+      const stories = await Story.find({meeting: { _id: req.params.meetingId } });
+      return res.json(stories);
+  } catch (err) {
+      return sendError(res, err);
+  }
+};
+
+exports.delete_story = async (req, res) => {
+  const storyId = req.params.storyId;
+  try {
+    await Story.deleteOne({_id: storyId});
     return res.json({message: 'Story successfully removed'});
   } catch (err) {
     return sendError(res, err);
