@@ -201,5 +201,92 @@ describe('Story Controller', () => {
         });
     });
 
+    describe('list story estimates', () => {
+        let expectedResponse;
+        let mockStoryFindById;
+        const storyId = '123';
+
+        beforeEach(() => {
+            mockStoryFindById = stub(Story, 'findById');
+        });
+
+        afterEach(() => {
+            mockStoryFindById.restore();
+        });
+
+        it('should list estimates of the story ', async () => {
+            expectedResponse = [];
+            expectedStory = {
+                _id: storyId, 
+                name: 'story a', 
+                meeting: {
+                    _id: '123'
+                },
+                estimates: expectedResponse
+            };
+
+            mockStoryFindById.returns(expectedStory);
+            _.set(req, 'params.storyId', storyId);
+
+            await fixture.list_story_estimates(req, res);
+
+            assert.calledWith(mockStoryFindById, storyId);
+            assert.calledWith(res.json, expectedResponse);
+        });
+
+
+        it('should return error if there is a server error', async () => {
+            mockStoryFindById.throws(error);
+            _.set(req, 'params.storyId', storyId);
+
+            await fixture.list_story_estimates(req, res);
+
+            assert.calledWith(mockStoryFindById, storyId);
+            status.calledWith(500);
+            send.calledWith(match(error));
+        });
+    });
+
+    describe('delete story estimates', () => {
+        let expectedResponse;
+        let mockStoreFindOneAndUpdate;
+        const storyId = '123';
+        const estimateId = 'abc123';
+
+        beforeEach(() => {
+            mockStoreFindOneAndUpdate = stub(Story, 'findOneAndUpdate');
+        });
+
+        afterEach(() => {
+            mockStoreFindOneAndUpdate.restore();
+        });
+
+        it('should delete estimates of the story ', async () => {
+            expectedResponse = {message: 'Estimate successfully removed'};
+
+            mockStoreFindOneAndUpdate.returns({});
+            _.set(req, 'params.storyId', storyId);
+            _.set(req, 'params.estimateId', estimateId);
+
+            await fixture.delete_story_estimate(req, res);
+
+            assert.calledWith(mockStoreFindOneAndUpdate, {_id: storyId}, { $pullAll: { estimates: [estimateId] } });
+            assert.calledWith(res.json, expectedResponse);
+        });
+
+
+        it('should return error if there is a server error', async () => {
+            mockStoreFindOneAndUpdate.throws(error);
+            _.set(req, 'params.storyId', storyId);
+            _.set(req, 'params.estimateId', estimateId);
+
+            await fixture.delete_story_estimate(req, res);
+
+            assert.calledWith(mockStoreFindOneAndUpdate, {_id: storyId}, { $pullAll: { estimates: [estimateId] } });
+            status.calledWith(500);
+            send.calledWith(match(error));
+        });
+    });
+
 });
 
