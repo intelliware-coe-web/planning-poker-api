@@ -12,6 +12,10 @@ let MeetingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
+    current_story: {
+        type: Schema.Types.ObjectId,
+        ref: 'Story'
+    },
     created_date: {
         type: Date,
         default: Date.now
