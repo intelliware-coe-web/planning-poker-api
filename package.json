@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js", 
-    "test": "mocha api/**/*test.js",   
+    "start": "nodemon index.js",
+    "test": "mocha api/**/*test.js",
     "coverage": "nyc --reporter=html --reporter=text mocha api/**/*test.js",
-    "report-coverage": "nyc report --reporter=text-lcov | coveralls"
+    "report-coverage": "nyc report --reporter=text-lcov | coveralls",
+    "deploy": "gcloud app deploy"
   },
   "repository": {
     "type": "git",
