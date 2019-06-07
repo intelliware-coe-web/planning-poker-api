@@ -8,6 +8,10 @@ let MeetingSchema = new Schema({
         required: 'Name is required'
     },
     host: String,
+    current_story: {
+        type: Schema.Types.ObjectId,
+        ref: 'Story'
+    },
     created_date: {
         type: Date,
         default: Date.now
