@@ -19,4 +19,4 @@ module.exports = (app) => {
 
   app.route('/stories/:storyId/estimates/:estimateId')
     .delete(controller.delete_story_estimate);
-}
+};

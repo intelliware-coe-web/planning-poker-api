@@ -9,9 +9,4 @@ module.exports = function(app) {
   app.route('/meetings/:meetingId')
     .get(controller.get_meeting)
     .delete(controller.delete_meeting);
-
-  app.route('/meetings/:meetingId/attendees')
-    .get(controller.list_attendees)
-    .post(controller.add_attendee)
-    .delete(controller.delete_attendee);
 };
