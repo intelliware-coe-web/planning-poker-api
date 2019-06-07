@@ -229,6 +229,6 @@ describe('Meeting Controller', () => {
             assert.calledWith(User.findById, {_id: userId});
             assert.calledWith(res.json, match({ message: 'No user found with that id' }));            
         });
-    });    
+    });   
 });
 

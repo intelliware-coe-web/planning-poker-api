@@ -10,6 +10,10 @@ let StorySchema = new Schema({
     description: {
         type: String
     },
+    meeting: {
+        type: Schema.Types.ObjectId,
+        ref: 'Meeting'
+    },
     estimates: [{
         user: {
             type: Schema.Types.ObjectId,

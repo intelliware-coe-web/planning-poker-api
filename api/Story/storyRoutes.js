@@ -5,6 +5,11 @@ module.exports = (app) => {
   app.route('/stories')
     .get(controller.list_stories);
 
+  // change this to be /stories?meetingId=whatever
+  app.route('/stories/:meetingId')
+    .get(controller.get_stories_by_meetingId)
+    .post(controller.create_story);
+
   app.route('/stories/:storyId')
     .get(controller.get_story)
     .delete(controller.delete_story);

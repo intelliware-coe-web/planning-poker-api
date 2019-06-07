@@ -11,6 +11,30 @@ exports.list_stories = async (req, res) => {
   }  
 };
 
+// TODO change this endpoint to be /stories?meetingId=234234
+exports.create_story = async (req, res) => {
+  // get meetingId query parameter instead
+  const meetingId = req.params.meetingId;
+
+  const meeting = await Meeting.findById(meetingId);
+
+  if (!meeting) {
+    return res.json({ message: 'Meeting not found'});
+  }
+  const new_story = new Story(req.body);
+  new_story.meetingId = meetingId;
+  console.log(new_story);
+  console.log(new_story.meetingId);
+
+  try {
+    new_story = await new_story.save();
+    console.log(new_story);
+    return res.json({ message: 'Story successfully added' });
+  } catch (err) {
+    return sendError(res, err);
+  }
+};
+
 exports.get_story = async (req, res) => {
   try {
       const story = await Story.findById(req.params.storyId);
@@ -22,6 +46,8 @@ exports.get_story = async (req, res) => {
 
 exports.get_stories_by_meetingId = async (req, res) => {
   try {
+      // TODO change meetingId to be query param instead of part of the url
+      // /stories?meetingId=234234
       const stories = await Story.find({meeting: { _id: req.params.meetingId } });
       return res.json(stories);
   } catch (err) {

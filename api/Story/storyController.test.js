@@ -130,7 +130,7 @@ describe('Story Controller', () => {
         });
     });
 
-    describe('create story for meeting', () => {
+    describe('create story', () => {
         const meetingId = 123;
 
         beforeEach(() => {
