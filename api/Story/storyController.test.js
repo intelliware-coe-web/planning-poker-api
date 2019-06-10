@@ -2,7 +2,6 @@ const _ = require('lodash');
 const {spy,stub, assert, match} = require('sinon');
 
 const Story = require('./storyModel');
-const Meeting = require('../Meeting/meetingModel');
 const fixture = require('./storyController');
 
 describe('Story Controller', () => {
@@ -16,6 +15,7 @@ describe('Story Controller', () => {
         json = spy();
         send = spy();
         status = stub();
+        req = {};
 
         res = { json, status, send};
 
@@ -60,6 +60,7 @@ describe('Story Controller', () => {
 
         beforeEach(() => {
             mockStoryFindById = stub(Story, 'findById');
+            _.set(req, 'params.storyId', storyId);
         });
 
         afterEach(() => {
@@ -70,8 +71,6 @@ describe('Story Controller', () => {
             expectedResult = {_id: storyId};
 
             mockStoryFindById.returns(expectedResult);
-
-            _.set(req, 'params.storyId', storyId);
 
             await fixture.get_story(req, res);
 
@@ -260,16 +259,16 @@ describe('Story Controller', () => {
 
     describe('delete story estimate', () => {
         let expectedResponse;
-        let mockStoreFindOneAndUpdate;
+        let mockStoryUpdateOne;
         const storyId = 'story1';
         const estimateId = 'estimate1';
 
         beforeEach(() => {
-            mockStoreFindOneAndUpdate = stub(Story, 'findOneAndUpdate');
+            mockStoryUpdateOne = stub(Story, 'updateOne');
         });
 
         afterEach(() => {
-            mockStoreFindOneAndUpdate.restore();
+            mockStoryUpdateOne.restore();
         });
 
         it('should delete estimate of the story ', async () => {
@@ -277,11 +276,11 @@ describe('Story Controller', () => {
             _.set(req, 'params.estimateId', estimateId);
 
             expectedResponse = {message: 'Estimate successfully removed'};
-            mockStoreFindOneAndUpdate.returns({});
+            mockStoryUpdateOne.returns({});
 
             await fixture.delete_story_estimate(req, res);
 
-            assert.calledWith(mockStoreFindOneAndUpdate, {_id: storyId}, { $pullAll: { estimates: [estimateId] } });
+            assert.calledWith(mockStoryUpdateOne, {_id: storyId}, { $pull: { estimates: { _id: estimateId } } });
             assert.calledWith(res.json, expectedResponse);
         });
 
@@ -289,11 +288,11 @@ describe('Story Controller', () => {
         it('should return error if there is a server error', async () => {
             _.set(req, 'params.storyId', storyId);
             _.set(req, 'params.estimateId', estimateId);
-            mockStoreFindOneAndUpdate.throws(error);
+            mockStoryUpdateOne.throws(error);
 
             await fixture.delete_story_estimate(req, res);
 
-            assert.calledWith(mockStoreFindOneAndUpdate, {_id: storyId}, { $pullAll: { estimates: [estimateId] } });
+            assert.calledWith(mockStoryUpdateOne, {_id: storyId}, { $pull: { estimates: { _id: estimateId } } });
             status.calledWith(500);
             send.calledWith(match(error));
         });
@@ -301,98 +300,49 @@ describe('Story Controller', () => {
 
     describe('create story estimate', () => {
         let expectedResponse;
-        let mockStoreFindOne;
-        let mockStoreUpdate;
-        let mockStoreFindOneAndUpdate;
+        let mockStoryUpdateOne;
         const storyId = 'story1';
-        const userId = 'user1';
-        const estimate = {};
+        const user = 'user1';
+        const estimate = 8;
 
         beforeEach(() => {
-            mockStoreFindOne = stub(Story, 'findOne');
-            mockStoreUpdate = stub(Story, 'update');
-            mockStoreFindOneAndUpdate = stub(Story, 'findOneAndUpdate');
+            mockStoryUpdateOne = stub(Story, 'updateOne');
+            _.set(req, 'params.storyId', storyId);
+            _.set(req, 'body.user', user);
+            _.set(req, 'body.estimate', estimate);
         });
 
         afterEach(() => {
-            mockStoreFindOne.restore();
-            mockStoreUpdate.restore();
-            mockStoreFindOneAndUpdate.restore();
+            mockStoryUpdateOne.restore();
         });
 
         it('should update estimate in story when estimate for user existed before', async () => {
-            _.set(req, 'params.storyId', storyId);
-            _.set(req, 'body.userId', userId);
-            _.set(req, 'body.estimate', estimate);
-            mockStoreFindOne.returns({});
-            mockStoreUpdate.returns();
-            expectedResponse = { message: 'Existing estimate successfully updated'};
-            await fixture.create_story_estimate(req, res);
+            mockStoryUpdateOne.returns({n: 1});
 
-            assert.calledWith(mockStoreFindOne, {_id: storyId, 'estimates.user': userId});
-            assert.calledWith(mockStoreUpdate, { _id: storyId, "estimates.user": userId}, { $set: { "estimates.$.estimate": estimate } });
-            assert.notCalled(mockStoreFindOneAndUpdate);
+            expectedResponse = { message: 'Existing estimate successfully updated'};
+            await fixture.update_story_estimate(req, res);
+
+            assert.calledWith(mockStoryUpdateOne, {_id: storyId, 'estimates.user': user}, { $set: {'estimates.$.estimate': estimate}});
             assert.calledWith(res.json, expectedResponse);
         });
 
         it('should add estimate to story when no estimate for user existed before', async () => {
-            _.set(req, 'params.storyId', storyId);
-            _.set(req, 'body.userId', userId);
-            _.set(req, 'body.estimate', estimate);
-            mockStoreFindOne.returns();
-            mockStoreFindOneAndUpdate.returns();
-            expectedResponse = { message: 'Estimate successfully added to story' };
-            await fixture.create_story_estimate(req, res);
+            mockStoryUpdateOne.returns({n: 0});
 
-            assert.calledWith(mockStoreFindOne, {_id: storyId, 'estimates.user': userId});
-            assert.notCalled(mockStoreUpdate);
-            assert.calledWith(mockStoreFindOneAndUpdate, { _id: storyId },{ $addToSet: { estimates: req.body } });
+            expectedResponse = { message: 'Estimate successfully added to story' };
+            await fixture.update_story_estimate(req, res);
+
+            assert.calledTwice(mockStoryUpdateOne);
+            assert.calledWith(mockStoryUpdateOne, { _id: storyId },{ $addToSet: { estimates: {user: user, estimate: estimate} } });
             assert.calledWith(res.json, expectedResponse);
         });
 
-        it('should return error if findOne returns error', async () => {
-            _.set(req, 'params.storyId', storyId);
-            _.set(req, 'body.userId', userId);
-            _.set(req, 'body.estimate', estimate);
-            mockStoreFindOne.throws(error);
+        it('should return error if updateOne returns error', async () => {
+            mockStoryUpdateOne.throws(error);
 
-            await fixture.create_story_estimate(req, res);
+            await fixture.update_story_estimate(req, res);
 
-            assert.calledWith(mockStoreFindOne, {_id: storyId, 'estimates.user': userId});
-            assert.notCalled(mockStoreUpdate);
-            assert.notCalled(mockStoreFindOneAndUpdate);
-            status.calledWith(500);
-            send.calledWith(match(error));
-        });
-
-        it('should return error if update returns error', async () => {
-            _.set(req, 'params.storyId', storyId);
-            _.set(req, 'body.userId', userId);
-            _.set(req, 'body.estimate', estimate);
-            mockStoreFindOne.returns({});
-            mockStoreUpdate.throws(error);
-
-            await fixture.create_story_estimate(req, res);
-
-            assert.calledWith(mockStoreFindOne, {_id: storyId, 'estimates.user': userId});
-            assert.calledWith(mockStoreUpdate, { _id: storyId, "estimates.user": userId}, { $set: { "estimates.$.estimate": estimate } });
-            assert.notCalled(mockStoreFindOneAndUpdate);
-            status.calledWith(500);
-            send.calledWith(match(error));
-        });
-
-        it('should return error if findOneAndUpdate returns error', async () => {
-            _.set(req, 'params.storyId', storyId);
-            _.set(req, 'body.userId', userId);
-            _.set(req, 'body.estimate', estimate);
-            mockStoreFindOne.returns();
-            mockStoreFindOneAndUpdate.throws(error);
-
-            await fixture.create_story_estimate(req, res);
-
-            assert.calledWith(mockStoreFindOne, {_id: storyId, 'estimates.user': userId});
-            assert.notCalled(mockStoreUpdate);
-            assert.calledWith(mockStoreFindOneAndUpdate, { _id: storyId },{ $addToSet: { estimates: req.body } });
+            assert.calledWith(mockStoryUpdateOne, {_id: storyId, 'estimates.user': user}, { $set: {'estimates.$.estimate': estimate}});
             status.calledWith(500);
             send.calledWith(match(error));
         });

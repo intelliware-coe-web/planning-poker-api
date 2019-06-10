@@ -15,7 +15,7 @@ module.exports = (app) => {
 
   app.route('/stories/:storyId/estimates')
     .get(controller.list_story_estimates)
-    .post(controller.create_story_estimate);
+    .put(controller.update_story_estimate);
 
   app.route('/stories/:storyId/estimates/:estimateId')
     .delete(controller.delete_story_estimate);
