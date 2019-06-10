@@ -7,14 +7,17 @@ const fixture = require('./userController');
 describe('User controller', function() {
     let req = {},
     error = new Error({ error: "blah blah" }),
-    res = {};
+    res = {}, status, send, json;
 
     beforeEach(() => {
-        res = {
-            json: spy(),
-            send: spy(),
-            status: stub().returns(res)
-        };
+        json = spy();
+        send = spy();
+        status = stub();
+        req = {};
+
+        res = { json, status, send};
+
+        status.returns(res);
     });
 
     describe('List users', function() {
@@ -26,7 +29,7 @@ describe('User controller', function() {
     
         afterEach(() => {
             mockUserFind.restore();
-        })
+        });
 
         it('should return all users', async() => {
             expectedResult = [];
@@ -44,7 +47,8 @@ describe('User controller', function() {
             await fixture.list_users(req, res);
 
             assert.calledWith(User.find);
-            assert.calledWith(res.send, match(error));
+            status.calledWith(500);
+            send.calledWith(match(error));
         });
     });
 
@@ -75,7 +79,8 @@ describe('User controller', function() {
             await fixture.create_user(req, res);
 
             assert.calledWith(mockUserSave);
-            assert.calledWith(res.send, match(error));
+            status.calledWith(500);
+            send.calledWith(match(error));
         });
     });
 
@@ -109,7 +114,8 @@ describe('User controller', function() {
             await fixture.get_user(req, res);
 
             assert.calledWith(User.findById);
-            assert.calledWith(res.send, match(error));
+            status.calledWith(500);
+            send.calledWith(match(error));
         });
     });
 
@@ -145,7 +151,8 @@ describe('User controller', function() {
             await fixture.delete_user(req, res);
 
             assert.calledWith(User.remove);
-            assert.calledWith(res.send, match(error));
+            status.calledWith(500);
+            send.calledWith(match(error));
         });
     });
 
