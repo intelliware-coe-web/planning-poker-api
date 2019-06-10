@@ -5,7 +5,7 @@ cache:
   directories:
   - node_modules
 script:
-- npm test
-after_success: npm run coverage
+- npm run coverage
+after_success: npm run report-coverage
 notifications:
   slack: intelliware:mzyu8GqG4LOunucRTp6texaW

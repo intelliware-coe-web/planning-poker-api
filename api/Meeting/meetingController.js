@@ -1,5 +1,6 @@
 const mongoose = require('mongoose'),
 Meeting = mongoose.model('Meeting'),
+Story = mongoose.model('Story'),
 User = mongoose.model('User');
 
 exports.list_meetings = async (req, res) => {
@@ -37,51 +38,6 @@ exports.delete_meeting = async (req, res) => {
   } catch(err) {
     return sendError(res, err);
   }
-};
-
-exports.list_attendees = async (req, res) => {
-  try {
-    const meeting = await Meeting.findById(req.params.meetingId);
-    return res.json(meeting.attendees);
-  } catch(err) {
-    return sendError(res, err);
-  }
-};
-
-exports.delete_attendee = async (req, res) => {
-  const userId = req.body.id;
-  if (!userId) {
-    return res.json({ message: 'No user id' });    
-  } 
-
-  try {
-    await Meeting.findOneAndUpdate(
-      { _id: req.params.meetingId },
-      { $pullAll: {attendees: [userId]}}
-    );
-    return res.json({message: 'Attendee successfully removed'});
-  } catch (err) {
-    return sendError(res, err);
-  }
-};
-
-exports.add_attendee = async function(req, res) {
-  const userId = req.body.id;
-  if (!userId) {
-    return res.json({ message: 'No user id' });    
-  } 
-
-  let user;
-  try {
-    user = await User.findById({_id: userId});
-  } catch (err) {
-    return res.json({ message: 'No user found with that id' });
-  }
-
-  let meeting = await Meeting.findOneAndUpdate({ _id: req.params.meetingId },{ $addToSet: { attendees: user } });
-  if (meeting){
-    return res.json({ message: 'Attendee successfully added' });
-  }  
 };
 
 exports.get_current_story = async (req, res) => {

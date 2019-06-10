@@ -10,15 +10,23 @@ let StorySchema = new Schema({
     description: {
         type: String
     },
-    meeting: {
+    meetingId: {
         type: Schema.Types.ObjectId,
         ref: 'Meeting',
-        required: 'Story must have a meeting'
+        required: 'Meeting Id is required'
     },
+    estimates: [{
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        estimate: {
+            type: Number
+        }
+    }],
     created_date: {
         type: Date,
         default: Date.now
-    } 
+    }
 });
-
 module.exports = mongoose.model('Story', StorySchema);

@@ -12,8 +12,7 @@ let express = require('express'),
 // Load Models
 let User = require('./api/User/userModel'), 
   Meeting = require('./api/Meeting/meetingModel'), 
-  Story = require('./api/Story/storyModel'),
-  Estimate = require('./api/Estimate/estimateModel');
+  Story = require('./api/Story/storyModel');
 
 // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
@@ -36,13 +35,11 @@ app.use(bodyParser.json());
 // Register the routes
 let meetingRoutes = require('./api/Meeting/meetingRoutes'),
     storyRoutes = require('./api/Story/storyRoutes'),
-    userRoutes = require('./api/User/userRoutes'),
     adminRoutes = require('./api/Admin/adminRoutes'),
-    estimateRoutes = require('./api/Estimate/estimateRoutes');
+    userRoutes = require('./api/User/userRoutes');
 meetingRoutes(app);
 storyRoutes(app);
 userRoutes(app);
-estimateRoutes(app);
 adminRoutes(app);
 
 app.listen(port, () => {

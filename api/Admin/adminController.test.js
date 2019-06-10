@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const {spy,stub, assert, match} = require('sinon');
 
-const Estimate = require('../Estimate/estimateModel');
 const User = require('../User/userModel');
 const Meeting = require('../Meeting/meetingModel');
 const Story = require('../Story/storyModel');
@@ -25,25 +24,22 @@ describe('Admin Controller', () => {
 
   describe('delete_all', () => {
 
-    let mockUser, mockStory, mockEstimate, mockMeeting;
+    let mockUser, mockStory, mockMeeting;
 
     beforeEach(() => {
         mockUser = stub(User, 'deleteMany');
         mockStory = stub(Story, 'deleteMany');
         mockMeeting = stub(Meeting, 'deleteMany');
-        mockEstimate = stub(Estimate, 'deleteMany');
     });
 
     afterEach(() => {
         mockUser.restore();
         mockStory.restore();
         mockMeeting.restore();
-        mockEstimate.restore();
     });
 
     it('should return success message when deleted all', async () => {      
       await fixture.delete_all(req, res);
-      assert.called(Estimate.deleteMany)
       assert.called(Story.deleteMany);      
       assert.called(Meeting.deleteMany)
       assert.called(User.deleteMany);           
@@ -54,7 +50,6 @@ describe('Admin Controller', () => {
       mockStory.throws(error);
 
       await fixture.delete_all(req, res);
-      assert.called(Estimate.deleteMany)
       assert.called(Story.deleteMany);      
       status.calledWith(500);
       send.calledWith(match(error));
