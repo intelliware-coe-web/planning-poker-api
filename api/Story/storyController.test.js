@@ -236,7 +236,10 @@ describe('Story Controller', () => {
                 },
                 estimates: expectedResponse
             };
-            mockStoryFindById.returns(expectedStory);
+
+            let mockStoryFindOneResult = { populate: stub().returns(expectedStory) };
+
+            mockStoryFindById.returns(mockStoryFindOneResult);
 
             await fixture.list_story_estimates(req, res);
 

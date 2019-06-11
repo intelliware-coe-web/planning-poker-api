@@ -61,7 +61,7 @@ exports.get_story = async (req, res) => {
 
 exports.list_story_estimates = async (req, res) => {
   try {
-    const story = await Story.findById(req.params.storyId);
+    const story = await Story.findById(req.params.storyId).populate('estimates.user', 'name');
     if (story == null) {
       return res.json({message: "No story found for that id"});      
     }
