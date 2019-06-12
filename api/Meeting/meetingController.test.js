@@ -120,31 +120,31 @@ describe('Meeting Controller', () => {
     });
 
     describe('delete_meeting', () => {
-        let expectedResult, mockMeetingRemove;
+        let expectedResult, mockMeetingDeleteOne;
     
         beforeEach(() => {
-            mockMeetingRemove = stub(Meeting, 'remove');
+            mockMeetingDeleteOne = stub(Meeting, 'deleteOne');
         });
     
         afterEach(() => {
-            mockMeetingRemove.restore();
+            mockMeetingDeleteOne.restore();
         });
     
         it('should call delete', async () => {
             _.set(req, 'params.meetingId', 'abc');
             await fixture.delete_meeting(req, res);
 
-            assert.calledWith(Meeting.remove, {_id: 'abc'});
+            assert.calledWith(Meeting.deleteOne, {_id: 'abc'});
             assert.calledWith(res.json, match({message: 'Meeting successfully deleted'}));
             
         });
     
         it('should return error if there is a server error', async () => {
-            mockMeetingRemove.throws(error);
+            mockMeetingDeleteOne.throws(error);
 
             await fixture.delete_meeting(req, res);
 
-            assert.called(Meeting.remove);
+            assert.called(Meeting.deleteOne);
             assert.calledWith(res.send, match(error));
         });
     });
