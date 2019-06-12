@@ -6,7 +6,8 @@ let Schema = mongoose.Schema;
 let UserSchema = new Schema({
   name: {
     type: String,
-    required: 'You need a name to exist'
+    required: 'You need a name to exist',
+    trim: true
   },
   created_date: {
     type: Date,
