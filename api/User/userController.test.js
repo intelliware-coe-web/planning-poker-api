@@ -53,27 +53,44 @@ describe('User controller', function() {
     });
 
     describe('Create user', function() {
-        let mockUserSave;
+        let mockUserSave, mockUserFind;
         
         before(() => {
+            mockUserFind = stub(User, 'findOne');
             mockUserSave = stub(User.prototype, 'save');
         });
 
         after(() => {
+            mockUserFind.restore();
             mockUserSave.restore();
         });
 
-        it('should create new user', async() => {
+        it('should create new user if user name does not exist', async() => {
+            _.set(req, 'body.name', 'Bob');
             const expectedResult = {};
-            mockUserSave.returns(expectedResult);
+            mockUserFind.returns(null)
+            mockUserSave.returns(expectedResult);            
     
             await fixture.create_user(req, res);
 
-            assert.calledWith(mockUserSave);
+            assert.calledWith(mockUserFind, {name: 'Bob'});
+            assert.called(mockUserSave);
+            assert.calledWith(res.json, match(expectedResult));
+        });
+
+        it('should return user if there is already one that exists', async() => {
+            _.set(req, 'body.name', 'Bob');
+            const expectedResult = { name: 'Bob' };
+            mockUserFind.returns(expectedResult)
+    
+            await fixture.create_user(req, res);
+
+            assert.calledWith(mockUserFind, {name: 'Bob'});
             assert.calledWith(res.json, match(expectedResult));
         });
 
         it('should return error if there is a server error', async() => {
+            mockUserFind.returns(null)
             mockUserSave.throws(error);
 
             await fixture.create_user(req, res);

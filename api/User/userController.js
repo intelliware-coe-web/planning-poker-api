@@ -12,8 +12,11 @@ exports.list_users = async(req, res) => {
 
 exports.create_user = async(req, res) => {
   try {
-    let new_user = new User(req.body);
-    const user = await new_user.save();
+    let user = await User.findOne({name: req.body.name});
+    if(user == null) {
+      let new_user = new User(req.body);
+      user = await new_user.save();
+    }
     return res.json(user);
   } catch (err) {
     return sendError(res, err);
