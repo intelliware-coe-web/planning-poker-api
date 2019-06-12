@@ -33,7 +33,7 @@ exports.get_meeting = async (req, res) => {
 
 exports.delete_meeting = async (req, res) => {
   try {
-    await Meeting.remove({_id: req.params.meetingId});
+    await Meeting.deleteOne({_id: req.params.meetingId});
     return res.json({message: 'Meeting successfully deleted'});
   } catch(err) {
     return sendError(res, err);
