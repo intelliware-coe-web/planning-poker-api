@@ -24,6 +24,9 @@ let StorySchema = new Schema({
             type: Number
         }
     }],
+    estimate_avg: {
+        type: Number
+    },
     created_date: {
         type: Date,
         default: Date.now
