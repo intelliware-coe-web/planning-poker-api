@@ -12,7 +12,11 @@ exports.list_stories = async (req, res) => {
 
 exports.create_story = async (req, res) => {
   try {
-    let new_story = new Story({ name: req.body.name, description: req.body.description, meetingId: req.query.meetingId});
+    let new_story = new Story({ 
+      name: req.body.name, 
+      description: req.body.description, 
+      meetingId: req.query.meetingId
+    });
     await new_story.validate();
     await new_story.save();
 
@@ -82,16 +86,48 @@ exports.delete_story_estimate = async (req, res) => {
 
 exports.update_story_estimate = async (req, res) => {
   try {
-    const storyUpdate = await Story.updateOne({_id: req.params.storyId, 'estimates.user': req.body.user}, { $set: {'estimates.$.estimate': req.body.estimate}});
-    if(!storyUpdate.n) {
+    const storyId = req.params.storyId;
+    const user = req.body.user;
+    const estimateVal = req.body.estimate;
+    
+    const storyUpdate = await Story.updateOne(
+      { _id: req.params.storyId, 'estimates.user': req.body.user }, 
+      { $set: {'estimates.$.estimate': req.body.estimate } }
+    );
+
+    if (!storyUpdate.n) {
       await Story.updateOne({ _id: req.params.storyId },{ $addToSet: { estimates: req.body } });
+      await updateStoryEstimateAverage(storyId);
       return res.json({ message: 'Estimate successfully added to story'});
-    }
+    } 
+
+    await updateStoryEstimateAverage(storyId);
     return res.json({ message: 'Existing estimate successfully updated'});
+
   } catch (err) {
     return sendError(res, err);
   }
 };
+
+async function updateStoryEstimateAverage(storyId) {
+  const newAvg = await calculateStoryEstimateAverage(storyId);
+
+  await Story.update(
+    { _id: storyId }, { $set: { estimate_avg: newAvg }}
+  ); 
+}
+
+async function calculateStoryEstimateAverage(storyId) {
+  const story = await Story.findOne({_id: storyId});
+  
+  let total = 0;
+  const estimateCount = story.estimates.length;
+  story.estimates.forEach(currEstimate => {
+    total += currEstimate.estimate;
+  });
+
+  return total / estimateCount;
+}
 
 // TODO: should we pull this out into something generic?
 function sendError(res, err) {

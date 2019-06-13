@@ -304,12 +304,17 @@ describe('Story Controller', () => {
     describe('create story estimate', () => {
         let expectedResponse;
         let mockStoryUpdateOne;
+        let mockStoryUpdate;
+        let mockStoryFindOne;
         const storyId = 'story1';
         const user = 'user1';
         const estimate = 8;
 
         beforeEach(() => {
             mockStoryUpdateOne = stub(Story, 'updateOne');
+            mockStoryUpdate = stub(Story, 'update');
+            mockStoryFindOne = stub(Story, 'findOne');
+
             _.set(req, 'params.storyId', storyId);
             _.set(req, 'body.user', user);
             _.set(req, 'body.estimate', estimate);
@@ -317,26 +322,46 @@ describe('Story Controller', () => {
 
         afterEach(() => {
             mockStoryUpdateOne.restore();
+            mockStoryUpdate.restore();
+            mockStoryFindOne.restore();
         });
 
         it('should update estimate in story when estimate for user existed before', async () => {
-            mockStoryUpdateOne.returns({n: 1});
+            mockStoryUpdateOne.returns({n: 1}); // 1 story found and updated
+
+            mockStoryFindOne.returns({
+                _id: storyId, 
+                estimates: [{user: 1, estimate: 8}]
+            });
 
             expectedResponse = { message: 'Existing estimate successfully updated'};
             await fixture.update_story_estimate(req, res);
 
             assert.calledWith(mockStoryUpdateOne, {_id: storyId, 'estimates.user': user}, { $set: {'estimates.$.estimate': estimate}});
+            
+            // updating estimate_avg
+            assert.calledWith(mockStoryFindOne, { _id: storyId } );          
+            assert.calledWith(mockStoryUpdate, { _id: storyId }, { $set: { estimate_avg: 8 }});
             assert.calledWith(res.json, expectedResponse);
         });
 
         it('should add estimate to story when no estimate for user existed before', async () => {
-            mockStoryUpdateOne.returns({n: 0});
+            mockStoryUpdateOne.returns({n: 0}); // nothing was updated
+            mockStoryFindOne.returns({
+                _id: storyId, 
+                estimates: [{user: 1, estimate: 8}]
+            });
 
             expectedResponse = { message: 'Estimate successfully added to story' };
             await fixture.update_story_estimate(req, res);
 
             assert.calledTwice(mockStoryUpdateOne);
+            assert.calledWith(mockStoryUpdateOne, {_id: storyId, 'estimates.user': user}, { $set: {'estimates.$.estimate': estimate}});
             assert.calledWith(mockStoryUpdateOne, { _id: storyId },{ $addToSet: { estimates: {user: user, estimate: estimate} } });
+            
+            // updating estimate_avg
+            assert.calledWith(mockStoryFindOne, { _id: storyId } );          
+            assert.calledWith(mockStoryUpdate, { _id: storyId }, { $set: { estimate_avg: 8 }});
             assert.calledWith(res.json, expectedResponse);
         });
 
