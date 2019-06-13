@@ -15,6 +15,10 @@
   - mongoPassword  
 
 
+## Deployment
+- [Install Google Cloud SDK](https://cloud.google.com/sdk/install)
+- [Setting up Node and MongoDB Atlas on Google Cloud](https://cloud.google.com/community/tutorials/mongodb-atlas-appengineflex-nodejs-app)
+
 ## Interesting Links
 - [Query on Embedded/Nested Documents in MongoDB](https://docs.mongodb.com/manual/tutorial/query-embedded-documents/#read-operations-embedded-documents)
 - [Running a small nodejs app for free on Google App Engine](https://medium.com/@dai_shi/running-a-small-node-js-app-for-free-on-google-app-engine-b921735c2d5b)
