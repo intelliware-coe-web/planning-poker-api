@@ -107,30 +107,26 @@ exports.update_story_estimate = async (req, res) => {
 };
 
 async function updateExistingUserEstimate(userId, storyId, estimateVal) {
-  // update individual estimate
   await Story.update(
     { _id: storyId, "estimates.user": userId}, 
     { $set: { "estimates.$.estimate": estimateVal }}
   );  
 
-  const newAvg = await calculateStoryEstimateAverage(storyId);
-
-  // update estimate average
-  await Story.update(
-    { _id: storyId }, { $set: { estimate_avg: newAvg }}
-  ); 
+  await updateStoryEstimateAverage(storyId);
 }
 
 async function addNewUserEstimate(userId, storyId, estimateVal) {
-  // update individual estimate
   await Story.findOneAndUpdate(
     { _id: storyId },
     { $addToSet: { estimates: {userId: userId, estimate: estimateVal} } }
   );
 
+  await updateStoryEstimateAverage(storyId);
+}
+
+async function updateStoryEstimateAverage(storyId) {
   const newAvg = await calculateStoryEstimateAverage(storyId);
 
-  // update estimate average
   await Story.update(
     { _id: storyId }, { $set: { estimate_avg: newAvg }}
   ); 
