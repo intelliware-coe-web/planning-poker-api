@@ -16,7 +16,7 @@ exports.create_meeting = async (req, res) => {
   try {
     const new_meeting = new Meeting(req.body);
     await new_meeting.save();
-    return res.json(new_meeting)
+    return res.json(new_meeting);
   } catch (err) {
     return sendError(res, err);
   }
