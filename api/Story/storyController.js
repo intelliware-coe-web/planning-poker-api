@@ -119,14 +119,14 @@ async function updateStoryEstimateAverage(storyId) {
 
 async function calculateStoryEstimateAverage(storyId) {
   const story = await Story.findOne({_id: storyId});
-  
+
   let total = 0;
   const estimateCount = story.estimates.length;
   story.estimates.forEach(currEstimate => {
     total += currEstimate.estimate;
   });
 
-  return total / estimateCount;
+  return Math.round(total / estimateCount);
 }
 
 // TODO: should we pull this out into something generic?
