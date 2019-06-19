@@ -304,7 +304,6 @@ describe('Story Controller', () => {
     describe('create story estimate', () => {
         let expectedResponse;
         let mockStoryUpdateOne;
-        let mockStoryUpdate;
         let mockStoryFindOne;
         const storyId = 'story1';
         const user = 'user1';
@@ -312,7 +311,6 @@ describe('Story Controller', () => {
 
         beforeEach(() => {
             mockStoryUpdateOne = stub(Story, 'updateOne');
-            mockStoryUpdate = stub(Story, 'update');
             mockStoryFindOne = stub(Story, 'findOne');
 
             _.set(req, 'params.storyId', storyId);
@@ -322,7 +320,6 @@ describe('Story Controller', () => {
 
         afterEach(() => {
             mockStoryUpdateOne.restore();
-            mockStoryUpdate.restore();
             mockStoryFindOne.restore();
         });
 
@@ -341,7 +338,7 @@ describe('Story Controller', () => {
             
             // updating estimate_avg
             assert.calledWith(mockStoryFindOne, { _id: storyId } );          
-            assert.calledWith(mockStoryUpdate, { _id: storyId }, { $set: { estimate_avg: 8 }});
+            assert.calledWith(mockStoryUpdateOne, { _id: storyId }, { $set: { estimate_avg: 8 }});
             assert.calledWith(res.json, expectedResponse);
         });
 
@@ -355,13 +352,13 @@ describe('Story Controller', () => {
             expectedResponse = { message: 'Estimate successfully added to story' };
             await fixture.update_story_estimate(req, res);
 
-            assert.calledTwice(mockStoryUpdateOne);
+            assert.calledThrice(mockStoryUpdateOne);
             assert.calledWith(mockStoryUpdateOne, {_id: storyId, 'estimates.user': user}, { $set: {'estimates.$.estimate': estimate}});
             assert.calledWith(mockStoryUpdateOne, { _id: storyId },{ $addToSet: { estimates: {user: user, estimate: estimate} } });
             
             // updating estimate_avg
             assert.calledWith(mockStoryFindOne, { _id: storyId } );          
-            assert.calledWith(mockStoryUpdate, { _id: storyId }, { $set: { estimate_avg: 8 }});
+            assert.calledWith(mockStoryUpdateOne, { _id: storyId }, { $set: { estimate_avg: 8 }});
             assert.calledWith(res.json, expectedResponse);
         });
 
