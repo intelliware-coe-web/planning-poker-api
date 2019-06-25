@@ -1,176 +1,82 @@
-const _ = require('lodash');
-const {spy,stub, assert, match} = require('sinon');
-
+const {stub, assert} = require('sinon');
 const User = require('./userModel');
+const UserService = require('./userService');
+const ServiceComposer = require('../serviceComposer');
 const fixture = require('./userController');
 
-describe('User controller', function() {
-    let req = {},
-    error = new Error({ error: "blah blah" }),
-    res = {}, status, send, json;
+describe('User controller', () => {
+    let req = {}, res = {};
+    let mockServiceComposer;
 
-    beforeEach(() => {
-        json = spy();
-        send = spy();
-        status = stub();
-        req = {};
-
-        res = { json, status, send};
-
-        status.returns(res);
+    before(() => {
+        mockServiceComposer = stub(ServiceComposer, 'compose');
     });
 
-    describe('List users', function() {
-        let expectedResult, mockUserFind;
-    
-        beforeEach(() => {
-            mockUserFind = stub(User, 'find');
-        });
-    
-        afterEach(() => {
-            mockUserFind.restore();
-        });
-
-        it('should return all users', async() => {
-            expectedResult = [];
-            mockUserFind.returns(expectedResult);
-
-            await fixture.list_users(req, res);
-
-            assert.called(User.find);
-            assert.calledWith(res.json, match(expectedResult));
-        });
-
-        it('should return error if there is a server error', async () => {
-            mockUserFind.throws(error);
-
-            await fixture.list_users(req, res);
-
-            assert.calledWith(User.find);
-            status.calledWith(500);
-            send.calledWith(match(error));
-        });
+    after(() => {
+        mockServiceComposer.restore();
     });
 
-    describe('Create user', function() {
-        let mockUserSave, mockUserFind;
-        
+    describe('listUsers', () => {
+        let mockListUsers;
+
         before(() => {
-            mockUserFind = stub(User, 'findOne');
-            mockUserSave = stub(User.prototype, 'save');
+            mockListUsers = stub(UserService, 'list_users');
         });
-
         after(() => {
-            mockUserFind.restore();
-            mockUserSave.restore();
+            mockListUsers.restore();
         });
 
-        it('should create new user if user name does not exist', async() => {
-            _.set(req, 'body.name', 'Bob');
-            const expectedResult = {};
-            mockUserFind.returns(null)
-            mockUserSave.returns(expectedResult);            
-    
-            await fixture.create_user(req, res);
-
-            assert.calledWith(mockUserFind, {name: 'Bob'});
-            assert.called(mockUserSave);
-            assert.calledWith(res.json, match(expectedResult));
-        });
-
-        it('should return user if there is already one that exists', async() => {
-            _.set(req, 'body.name', 'Bob');
-            const expectedResult = { name: 'Bob' };
-            mockUserFind.returns(expectedResult)
-    
-            await fixture.create_user(req, res);
-
-            assert.calledWith(mockUserFind, {name: 'Bob'});
-            assert.calledWith(res.json, match(expectedResult));
-        });
-
-        it('should return error if there is a server error', async() => {
-            mockUserFind.returns(null)
-            mockUserSave.throws(error);
-
-            await fixture.create_user(req, res);
-
-            assert.calledWith(mockUserSave);
-            status.calledWith(500);
-            send.calledWith(match(error));
+        it('should call service composer with the list users service, request, and response', async () => {
+            await fixture.listUsers(req, res);
+            assert.calledWith(mockServiceComposer, mockListUsers, req, res);
         });
     });
 
-    describe('Get user by id', function() {
-        let mockUserFindById;
-        
+    describe('createUser', () => {
+        let mockCreateUser;
+
         before(() => {
-            mockUserFindById = stub(User, 'findById');
+            mockCreateUser = stub(UserService, 'create_user');
         });
-
         after(() => {
-            mockUserFindById.restore();
+            mockCreateUser.restore();
         });
 
-        it('should return the user', async() => {
-            const userId = '123abc';
-            _.set(req, 'params.userId', userId);
-
-            const expectedResult = {};
-            mockUserFindById.returns(expectedResult);
-    
-            await fixture.get_user(req, res);
-
-            assert.calledWith(User.findById, userId);
-            assert.calledWith(res.json, match(expectedResult));
-        });        
-
-        it('should return error if there is a server error', async() => {
-            mockUserFindById.throws(error);
-
-            await fixture.get_user(req, res);
-
-            assert.calledWith(User.findById);
-            status.calledWith(500);
-            send.calledWith(match(error));
+        it('should call service composer with the create user service, request, and response', async () => {
+            await fixture.createUser(req, res);
+            assert.calledWith(mockServiceComposer, mockCreateUser, req, res);
         });
     });
 
-    describe('Delete user by id', function() {
-        let mockUserRemove;
-        
+    describe('getUser', () => {
+        let mockGetUser;
+
         before(() => {
-            mockUserRemove = stub(User, 'remove');
+            mockGetUser = stub(UserService, 'get_user');
         });
-
         after(() => {
-            mockUserRemove.restore();
+            mockGetUser.restore();
         });
 
-        it('should delete the user', async() => {
-            const userId = '123abc';
-            _.set(req, 'params.userId', userId);
-
-            const expectedResult = {
-                message: 'User successfully deleted'
-            };
-            mockUserRemove.returns({});
-
-            await fixture.delete_user(req, res);
-
-            assert.calledWith(User.remove, {_id: userId});
-            assert.calledWith(res.json, match(expectedResult));
-        });
-
-        it('should return error if there is a server error', async() => {
-            mockUserRemove.throws(error);
-
-            await fixture.delete_user(req, res);
-
-            assert.calledWith(User.remove);
-            status.calledWith(500);
-            send.calledWith(match(error));
+        it('should call service composer with the get user service, request, and response', async () => {
+            await fixture.getUser(req, res);
+            assert.calledWith(mockServiceComposer, mockGetUser, req, res);
         });
     });
 
+    describe('deleteUser', () => {
+        let mockDeleteUser;
+
+        before(() => {
+            mockDeleteUser = stub(UserService, 'delete_user');
+        });
+        after(() => {
+            mockDeleteUser.restore();
+        });
+
+        it('should call service composer with the delete user service, request, and response', async () => {
+            await fixture.deleteUser(req, res);
+            assert.calledWith(mockServiceComposer, mockDeleteUser, req, res);
+        });
+    });
 });

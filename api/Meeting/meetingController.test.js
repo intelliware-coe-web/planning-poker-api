@@ -4,14 +4,9 @@ const MeetingService = require('./meetingService');
 const ServiceComposer = require('../serviceComposer');
 const fixture = require('./meetingController');
 
-describe('Meeting controller', () => {
-    let req = {}, res = {}, status;
+describe('Meeting Controller', () => {
+    let req = {}, res = {};
     let mockServiceComposer;
-
-    beforeEach(() => {
-        status = stub();
-        res = {status};
-    });
 
     before(() => {
         mockServiceComposer = stub(ServiceComposer, 'compose');

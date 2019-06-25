@@ -1,47 +1,18 @@
-const mongoose = require('mongoose'),
-User = mongoose.model('User');
+const userService = require('./userService');
+const ServiceComposer = require('../serviceComposer');
 
-exports.list_users = async(req, res) => {
-  try {
-      const users = await User.find();
-      return res.json(users);
-  } catch (err) {
-    return sendError(res, err);
-  }
+exports.listUsers = async (req, res) => {
+    return await ServiceComposer.compose(userService.list_users, req, res);
 };
 
-exports.create_user = async(req, res) => {
-  try {
-    let user = await User.findOne({name: req.body.name});
-    if(user == null) {
-      let new_user = new User(req.body);
-      user = await new_user.save();
-    }
-    return res.json(user);
-  } catch (err) {
-    return sendError(res, err);
-  }
+exports.createUser = async (req, res) => {
+    return await ServiceComposer.compose(userService.create_user, req, res);
 };
 
-exports.get_user = async(req, res) => {
-  try {
-      const user = await User.findById(req.params.userId);
-      return res.json(user);
-  } catch (err) {
-    return sendError(res, err);
-  }
+exports.getUser = async (req, res) => {
+    return await ServiceComposer.compose(userService.get_user, req, res);
 };
 
-exports.delete_user = async(req, res) => {
-  try {
-    await User.remove({_id: req.params.userId});
-    return res.json({message: 'User successfully deleted'});
-  } catch(err) {
-    return sendError(res, err);
-  }
+exports.deleteUser = async (req, res) => {
+    return await ServiceComposer.compose(userService.delete_user, req, res);
 };
-
-// TODO: should we pull this out into something generic?
-function sendError(res, err) {
-    return res.status(500).send(err);
-}
