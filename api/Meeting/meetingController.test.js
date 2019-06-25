@@ -1,245 +1,120 @@
-const _ = require('lodash');
-const {spy,stub, assert, match, mock} = require('sinon');
-
-const User = require('../User/userModel');
+const {stub, assert} = require('sinon');
 const Meeting = require('./meetingModel');
-
+const MeetingService = require('./meetingService');
+const ServiceComposer = require('../serviceComposer');
 const fixture = require('./meetingController');
 
-describe('Meeting Controller', () => {
-    let req = {},
-    error = new Error({ error: "blah blah" }),
-    res = {}, status, send, json;
+describe('Meeting controller', () => {
+    let req = {}, res = {}, status;
+    let mockServiceComposer;
 
     beforeEach(() => {
-        json = spy();
-        send = spy();
         status = stub();
-
-        res = { json, status, send};
-
-        status.returns(res);
+        res = {status};
     });
 
-    describe('list meetings', () => {
-        let expectedResult, mockMeetingFind;
-    
-        beforeEach(() => {
-            mockMeetingFind = stub(Meeting, 'find');
-        });
-    
-        afterEach(() => {
-            mockMeetingFind.restore();
-        });
-    
-        it('should return a list of meetings', async () => {
-            expectedResult = [];
-            mockMeetingFind.returns(expectedResult);
-    
-            await fixture.list_meetings(req, res);
+    before(() => {
+        mockServiceComposer = stub(ServiceComposer, 'compose');
+    });
 
-            assert.called(Meeting.find);
-            assert.calledWith(res.json, match(expectedResult));
-            
+    after(() => {
+        mockServiceComposer.restore();
+    });
+
+    describe('listMeetings', () => {
+        let mockListMeetings;
+
+        before(() => {
+            mockListMeetings = stub(MeetingService, 'list_meetings');
         });
-    
-        it('should return error if there is a server error', async () => {
-            mockMeetingFind.throws(error);
+        after(() => {
+            mockListMeetings.restore();
+        });
 
-            await fixture.list_meetings(req, res);
-
-            assert.calledWith(Meeting.find);
-            assert.calledWith(res.send, match(error));
+        it('should call service composer with the list meetings service, request, and response', async () => {
+            await fixture.listMeetings(req, res);
+            assert.calledWith(mockServiceComposer, mockListMeetings, req, res);
         });
     });
 
-    describe('create_meeting', () => {
-        let expectedResult, mockMeeting;
-    
-        beforeEach(() => {
-            mockMeeting = stub(Meeting.prototype, 'save');
-        });
-    
-        afterEach(() => {
-            Meeting.prototype.save.restore();
-        });
-    
-        it('should return a new meeting', async () => {
-            _.set(req, 'body.name', 'Meeting Name');
-            expectedResult = { name: 'Meeting Name' };
-            mockMeeting.returns(expectedResult);
-    
-            await fixture.create_meeting(req, res);
+    describe('createMeeting', () => {
+        let mockCreateMeeting;
 
-            assert.called(Meeting.prototype.save);
-            assert.calledWith(res.json, match(expectedResult));
-            
+        before(() => {
+            mockCreateMeeting = stub(MeetingService, 'create_meeting');
         });
-    
-        it('should return error if there is a server error', async () => {
-            mockMeeting.throws(error);
+        after(() => {
+            mockCreateMeeting.restore();
+        });
 
-            await fixture.create_meeting(req, res);
-
-            assert.calledWith(Meeting.prototype.save);
-            assert.calledWith(res.send, match(error));
+        it('should call service composer with the create meeting service, request, and response', async () => {
+            await fixture.createMeeting(req, res);
+            assert.calledWith(mockServiceComposer, mockCreateMeeting, req, res);
         });
     });
 
-    describe('get_meeting', () => {
-        let expectedResult, mockMeetingFindById;
-    
-        beforeEach(() => {
-            mockMeetingFindById = stub(Meeting, 'findById');
-        });
-    
-        afterEach(() => {
-            mockMeetingFindById.restore();
-        });
-    
-        it('should return a meeting', async () => {
-            _.set(req, 'params.meetingId', 'abc');
-            expectedResult = { name: 'Meeting Name' };
-            mockMeetingFindById.returns(expectedResult);
-    
-            await fixture.get_meeting(req, res);
+    describe('getMeeting', () => {
+        let mockGetMeeting;
 
-            assert.calledWith(Meeting.findById, 'abc');
-            assert.calledWith(res.json, match(expectedResult));
-            
+        before(() => {
+            mockGetMeeting = stub(MeetingService, 'get_meeting');
         });
-    
-        it('should return error if there is a server error', async () => {
-            mockMeetingFindById.throws(error);
+        after(() => {
+            mockGetMeeting.restore();
+        });
 
-            await fixture.get_meeting(req, res);
-
-            assert.called(Meeting.findById);
-            assert.calledWith(res.send, match(error));
+        it('should call service composer with the get meeting service, request, and response', async () => {
+            await fixture.getMeeting(req, res);
+            assert.calledWith(mockServiceComposer, mockGetMeeting, req, res);
         });
     });
 
-    describe('delete_meeting', () => {
-        let expectedResult, mockMeetingDeleteOne;
-    
-        beforeEach(() => {
-            mockMeetingDeleteOne = stub(Meeting, 'deleteOne');
-        });
-    
-        afterEach(() => {
-            mockMeetingDeleteOne.restore();
-        });
-    
-        it('should call delete', async () => {
-            _.set(req, 'params.meetingId', 'abc');
-            await fixture.delete_meeting(req, res);
+    describe('deleteMeeting', () => {
+        let mockDeleteMeeting;
 
-            assert.calledWith(Meeting.deleteOne, {_id: 'abc'});
-            assert.calledWith(res.json, match({message: 'Meeting successfully deleted'}));
-            
+        before(() => {
+            mockDeleteMeeting = stub(MeetingService, 'delete_meeting');
         });
-    
-        it('should return error if there is a server error', async () => {
-            mockMeetingDeleteOne.throws(error);
+        after(() => {
+            mockDeleteMeeting.restore();
+        });
 
-            await fixture.delete_meeting(req, res);
-
-            assert.called(Meeting.deleteOne);
-            assert.calledWith(res.send, match(error));
+        it('should call service composer with the delete meeting service, request, and response', async () => {
+            await fixture.deleteMeeting(req, res);
+            assert.calledWith(mockServiceComposer, mockDeleteMeeting, req, res);
         });
     });
 
-    describe('current story', () => {
-        const storyId = '123';
-        const meetingId = '456';
+    describe('getCurrentStory', () => {
+        let mockGetCurrentStory;
 
-        describe('get', () => {
-            let expectedResult;
-            let mockMeetingFindById, mockMeetingFindOneResult;
-
-            before(() => {
-                mockMeetingFindById = stub(Meeting, 'findById');
-            });
-
-            after(() => {
-                mockMeetingFindById.restore();
-            });
-
-            it('should return current story', async () => {
-                let expectedCurrentStory = {
-                    _id: storyId,
-                    name: 'Mock Story Name',
-                    description: 'Mock Story Description'
-                };
-                let meetingWithPopulate = {
-                    _id: meetingId,
-                    current_story: expectedCurrentStory
-                };
-
-                _.set(req, 'params.meetingId', meetingId);
-
-                mockMeetingFindOneResult = { populate: stub().returns(meetingWithPopulate) };
-                mockMeetingFindById.returns(mockMeetingFindOneResult);
-
-                await fixture.get_current_story(req, res);
-
-                assert.calledWith(mockMeetingFindById, meetingId);
-                assert.calledWith(res.json, expectedCurrentStory);
-            });
-
-            it('should return error if there is a server error', async () => {
-                mockMeetingFindById.throws(error);
-                _.set(req, 'params.meetingId', meetingId);
-
-                await fixture.get_current_story(req, res);
-
-                assert.calledWith(mockMeetingFindById, meetingId);
-                status.calledWith(500);
-                send.calledWith(match(error));
-            });
-
+        before(() => {
+            mockGetCurrentStory = stub(MeetingService, 'get_current_story');
+        });
+        after(() => {
+            mockGetCurrentStory.restore();
         });
 
-        describe('update', () => {
-            let expectedResult;
-            let mockMeetingUpdateOne;
-
-            before(() => {
-                mockMeetingUpdateOne = stub(Meeting, 'updateOne');
-            });
-
-            after(() => {
-                mockMeetingUpdateOne.restore();
-            });
-
-            it('should update meeting with current story', async () => {
-                expectedResult = { message: 'Meeting successfully updated' };
-
-                _.set(req, 'params.meetingId', meetingId);
-                _.set(req, 'body.storyId', storyId);
-
-                mockMeetingUpdateOne.returns({});
-
-                await fixture.update_current_story(req, res);
-
-                assert.calledWith(mockMeetingUpdateOne, {_id: meetingId}, { $set: {current_story: storyId}});
-                assert.calledWith(res.json, expectedResult);
-            });
-
-            it('should return error if there is a server error', async () => {
-                mockMeetingUpdateOne.throws(error);
-                _.set(req, 'params.meetingId', meetingId);
-                _.set(req, 'body.storyId', storyId);
-
-                await fixture.update_current_story(req, res);
-
-                assert.calledWith(mockMeetingUpdateOne, {_id: meetingId}, { $set: {current_story: storyId}});
-                status.calledWith(500);
-                send.calledWith(match(error));
-            });
-
+        it('should call service composer with the get current story service, request, and response', async () => {
+            await fixture.getCurrentStory(req, res);
+            assert.calledWith(mockServiceComposer, mockGetCurrentStory, req, res);
         });
-
     });
+
+    describe('updateCurrentStory', () => {
+        let mockUpdateCurrentStory;
+
+        before(() => {
+            mockUpdateCurrentStory = stub(MeetingService, 'update_current_story');
+        });
+        after(() => {
+            mockUpdateCurrentStory.restore();
+        });
+
+        it('should call service composer with the update current story service, request, and response', async () => {
+            await fixture.updateCurrentStory(req, res);
+            assert.calledWith(mockServiceComposer, mockUpdateCurrentStory, req, res);
+        });
+    });
+
 });
-

@@ -1,16 +1,17 @@
 'use strict';
-module.exports = function(app) {
-  let controller = require('./meetingController');
+module.exports = function (app) {
+    let controller = require('./meetingController');
 
-  app.route('/meetings')
-    .get(controller.list_meetings)
-    .post(controller.create_meeting);
+    app.route('/meetings')
+        .get(controller.listMeetings)
+        .post(controller.createMeeting);
 
-  app.route('/meetings/:meetingId')
-    .get(controller.get_meeting)
-    .delete(controller.delete_meeting);
-    
-  app.route('/meetings/:meetingId/currentStory')
-      .get(controller.get_current_story)
-      .put(controller.update_current_story)
+    app.route('/meetings/:meetingId')
+        .get(controller.getMeeting)
+        .delete(controller.deleteMeeting);
+
+    app.route('/meetings/:meetingId/currentStory')
+        .get(controller.getCurrentStory)
+        .put(controller.updateCurrentStory);
+
 };
