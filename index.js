@@ -26,7 +26,7 @@ let corsOptions = {
     origin: ['https://intelliware-coe-web.github.io', 'http://localhost:3000'],
     methods: 'GET,PUT,PATCH,POST,DELETE',
     optionsSuccessStatus: 200
-}
+};
 
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({extended: true}));
