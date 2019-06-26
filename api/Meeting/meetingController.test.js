@@ -1,5 +1,4 @@
 const {stub, assert} = require('sinon');
-const Meeting = require('./meetingModel');
 const MeetingService = require('./meetingService');
 const ServiceComposer = require('../serviceComposer');
 const fixture = require('./meetingController');

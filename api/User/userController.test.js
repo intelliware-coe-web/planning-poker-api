@@ -1,5 +1,4 @@
 const {stub, assert} = require('sinon');
-const User = require('./userModel');
 const UserService = require('./userService');
 const ServiceComposer = require('../serviceComposer');
 const fixture = require('./userController');

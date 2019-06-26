@@ -1,58 +1,38 @@
-const _ = require('lodash');
-const {spy,stub, assert, match} = require('sinon');
-
-const User = require('../User/userModel');
 const Meeting = require('../Meeting/meetingModel');
 const Story = require('../Story/storyModel');
+const User = require('../User/userModel');
 
+const {stub, assert} = require('sinon');
+const AdminService = require('./adminService');
+const ServiceComposer = require('../serviceComposer');
 const fixture = require('./adminController');
 
 describe('Admin Controller', () => {
-  let req = {},
-        error = new Error({ error: "blah blah" }),
-        res = {}, status, send, json;
+    let req = {}, res = {};
+    let mockServiceComposer;
 
-    beforeEach(() => {
-        json = spy();
-        send = spy();
-        status = stub();
-
-        res = { json, status, send};
-
-        status.returns(res);
+    before(() => {
+        mockServiceComposer = stub(ServiceComposer, 'compose');
     });
 
-  describe('delete_all', () => {
-
-    let mockUser, mockStory, mockMeeting;
-
-    beforeEach(() => {
-        mockUser = stub(User, 'deleteMany');
-        mockStory = stub(Story, 'deleteMany');
-        mockMeeting = stub(Meeting, 'deleteMany');
+    after(() => {
+        mockServiceComposer.restore();
     });
 
-    afterEach(() => {
-        mockUser.restore();
-        mockStory.restore();
-        mockMeeting.restore();
+    describe('deleteAll', () => {
+        let mockDeleteAll;
+
+        before(() => {
+            mockDeleteAll = stub(AdminService, 'delete_all');
+        });
+        after(() => {
+            mockDeleteAll.restore();
+        });
+
+        it('should call service composer with the delete all service, request, and response', async () => {
+            await fixture.deleteAll(req, res);
+            assert.calledWith(mockServiceComposer, mockDeleteAll, req, res);
+        });
     });
 
-    it('should return success message when deleted all', async () => {      
-      await fixture.delete_all(req, res);
-      assert.called(Story.deleteMany);      
-      assert.called(Meeting.deleteMany)
-      assert.called(User.deleteMany);           
-      send.calledWith('Deleted Everything');
-    });
-
-    it('should return error message when there is an error', async () => {
-      mockStory.throws(error);
-
-      await fixture.delete_all(req, res);
-      assert.called(Story.deleteMany);      
-      status.calledWith(500);
-      send.calledWith(match(error));
-    });
-  });
 });
