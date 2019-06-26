@@ -3,20 +3,20 @@ module.exports = (app) => {
   let controller = require('./storyController');
 
   app.route('/stories/listAll')
-    .get(controller.list_stories);
+    .get(controller.listStories);
 
   app.route('/stories')
-    .get(controller.get_stories_by_meetingId)
-    .post(controller.create_story);
+    .get(controller.getStoriesByMeetingId)
+    .post(controller.createStory);
 
   app.route('/stories/:storyId')
-    .get(controller.get_story)
-    .delete(controller.delete_story);
+    .get(controller.getStory)
+    .delete(controller.deleteStory);
 
   app.route('/stories/:storyId/estimates')
-    .get(controller.list_story_estimates)
-    .put(controller.update_story_estimate);
+    .get(controller.listStoryEstimates)
+    .put(controller.updateStoryEstimate);
 
   app.route('/stories/:storyId/estimates/:estimateId')
-    .delete(controller.delete_story_estimate);
+    .delete(controller.deleteStoryEstimate);
 };
